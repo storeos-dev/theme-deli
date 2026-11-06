@@ -1,0 +1,113 @@
+{% assign items = widget.data.collectionId.products | default: products %}
+{% assign collection_url = widget.data.collectionId.url | default: '/collections/all' %}
+{% assign max = props.limit | default: 4 %}
+{% assign shown = 0 %}
+{% assign cols = props.columns | default: 4 %}
+
+{% if cols == 2 %}
+  {% assign grid_class = 'grid grid-cols-2 gap-x-4 gap-y-8 md:gap-x-6' %}
+{% elsif cols == 3 %}
+  {% assign grid_class = 'grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6' %}
+{% else %}
+  {% assign grid_class = 'grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6' %}
+{% endif %}
+
+<section class="page-width mx-auto px-5 py-12 md:py-16">
+  {% if props.heading != blank or props.showViewAll %}
+    <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+      {% if props.heading != blank %}
+        <h2 class="sf-heading">{{ props.heading }}</h2>
+      {% endif %}
+      {% if props.showViewAll %}
+        <a class="sf-caption uppercase tracking-wide text-ritual-muted hover:text-ritual-fg" href="{{ collection_url }}">
+          {% if props.viewAllLabel != blank %}
+            {{ props.viewAllLabel }}
+          {% else %}
+            {{ 'general.view_all' | t }}
+          {% endif %}
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="{{ grid_class }}">
+    {% for item in items %}
+      {% if props.excludeCurrent and product and item.id == product.id %}
+        {% continue %}
+      {% endif %}
+      {% if shown >= max %}
+        {% break %}
+      {% endif %}
+      {% render 'product-card', product: item %}
+      {% assign shown = shown | plus: 1 %}
+    {% else %}
+      <p class="col-span-full text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
+    {% endfor %}
+    {% if shown == 0 and items.size > 0 %}
+      <p class="col-span-full text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Product grid",
+  "group": "dynamic",
+  "icon": "layout-grid",
+  "regions": ["pages.product", "pages.home", "pages.collection", "pages.search"],
+  "defaultProps": {
+    "heading": "You may also like",
+    "limit": 4,
+    "columns": 4,
+    "excludeCurrent": true,
+    "showViewAll": false,
+    "viewAllLabel": "View all"
+  },
+  "settings": {
+    "heading": {
+      "kind": "text",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    "collectionId": {
+      "kind": "collection",
+      "label": "Collection",
+      "hint": "Leave empty to use related products on the product page, or newest products elsewhere."
+    },
+    "limit": {
+      "kind": "number",
+      "label": "Products to show",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "default": 4
+    },
+    "columns": {
+      "kind": "select",
+      "label": "Columns",
+      "default": 4,
+      "options": [
+        { "label": "2", "value": 2 },
+        { "label": "3", "value": 3 },
+        { "label": "4", "value": 4 }
+      ]
+    },
+    "excludeCurrent": {
+      "kind": "boolean",
+      "label": "Hide current product",
+      "hint": "Useful for related products on the product page.",
+      "default": true
+    },
+    "showViewAll": {
+      "kind": "boolean",
+      "label": "Show view all",
+      "default": false
+    },
+    "viewAllLabel": {
+      "kind": "text",
+      "label": "View all label",
+      "default": "View all"
+    }
+  }
+}
+{% endschema %}

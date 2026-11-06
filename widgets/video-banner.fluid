@@ -1,0 +1,141 @@
+{% assign file_src = props.file | image_url %}
+{% assign url = file_src | default: props.videoUrl %}
+{% assign provider = props.provider | default: 'auto' %}
+{% if file_src != blank %}
+  {% assign provider = 'mp4' %}
+{% elsif provider == 'auto' %}
+  {% assign yt_id = url | youtube_id %}
+  {% assign vm_id = url | vimeo_id %}
+  {% if yt_id != blank %}
+    {% assign provider = 'youtube' %}
+  {% elsif vm_id != blank %}
+    {% assign provider = 'vimeo' %}
+  {% else %}
+    {% assign provider = 'mp4' %}
+  {% endif %}
+{% else %}
+  {% assign yt_id = url | youtube_id %}
+  {% assign vm_id = url | vimeo_id %}
+{% endif %}
+
+{% if provider == 'youtube' and yt_id == blank %}
+  {% assign yt_id = url | youtube_id %}
+{% endif %}
+{% if provider == 'vimeo' and vm_id == blank %}
+  {% assign vm_id = url | vimeo_id %}
+{% endif %}
+
+{% case props.ratio %}
+  {% when 'tall' %}
+    {% assign ratio_class = 'aspect-[4/5]' %}
+  {% when 'square' %}
+    {% assign ratio_class = 'aspect-square' %}
+  {% else %}
+    {% assign ratio_class = 'aspect-video' %}
+{% endcase %}
+
+<section class="page-width mx-auto px-5 py-12 md:py-16">
+  <div class="relative w-full overflow-hidden bg-ritual-fg {{ ratio_class }}">
+    {% if provider == 'youtube' and yt_id != blank %}
+      <img
+        class="absolute inset-0 size-full object-cover opacity-40"
+        src="https://i.ytimg.com/vi/{{ yt_id }}/hqdefault.jpg"
+        alt=""
+        loading="lazy"
+      >
+      <iframe
+        class="absolute inset-0 size-full"
+        src="{{ yt_id | youtube_embed: props.autoplay, props.muted, props.loop }}"
+        title="{{ props.title | default: shop.name }}"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        {% if props.controls %}allowfullscreen{% endif %}
+        loading="lazy"
+      ></iframe>
+    {% elsif provider == 'vimeo' and vm_id != blank %}
+      <iframe
+        class="absolute inset-0 size-full"
+        src="{{ vm_id | vimeo_embed: props.autoplay, props.muted, props.loop }}"
+        title="{{ props.title | default: shop.name }}"
+        allow="autoplay; fullscreen; picture-in-picture"
+        {% if props.controls %}allowfullscreen{% endif %}
+        loading="lazy"
+      ></iframe>
+    {% elsif url != blank %}
+      <video
+        class="absolute inset-0 size-full object-contain"
+        src="{{ url }}"
+        title="{{ props.title | default: shop.name }}"
+        playsinline
+        {% if props.controls != false %}controls{% endif %}
+        {% if props.autoplay %}autoplay{% endif %}
+        {% if props.muted or props.autoplay %}muted{% endif %}
+        {% if props.loop %}loop{% endif %}
+      ></video>
+    {% else %}
+      <div class="flex size-full items-center justify-center border border-dashed border-ritual-border bg-ritual-bg text-sm text-ritual-muted">
+        {% if props.title != blank %}
+          {{ props.title }}
+        {% else %}
+          {{ 'general.video_placeholder' | t }}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Video banner",
+  "group": "page",
+  "icon": "video",
+  "defaultProps": {
+    "file": null,
+    "videoUrl": "",
+    "provider": "auto",
+    "title": "",
+    "autoplay": false,
+    "muted": false,
+    "loop": false,
+    "controls": true,
+    "ratio": "wide"
+  },
+  "settings": {
+    "file": {
+      "kind": "video",
+      "label": "Video file",
+      "hint": "Upload MP4, WebM, or MOV. Takes priority over a URL."
+    },
+    "videoUrl": {
+      "kind": "text",
+      "label": "Video URL",
+      "hint": "YouTube, Vimeo, or a direct video link."
+    },
+    "provider": {
+      "kind": "select",
+      "label": "Provider",
+      "default": "auto",
+      "options": [
+        { "label": "Auto", "value": "auto" },
+        { "label": "YouTube", "value": "youtube" },
+        { "label": "Vimeo", "value": "vimeo" },
+        { "label": "MP4", "value": "mp4" }
+      ]
+    },
+    "title": { "kind": "text", "label": "Title" },
+    "autoplay": { "kind": "boolean", "label": "Autoplay", "default": false },
+    "muted": { "kind": "boolean", "label": "Muted", "default": false },
+    "loop": { "kind": "boolean", "label": "Loop", "default": false },
+    "controls": { "kind": "boolean", "label": "Controls", "default": true },
+    "ratio": {
+      "kind": "select",
+      "label": "Aspect ratio",
+      "default": "wide",
+      "options": [
+        { "label": "16:9", "value": "wide" },
+        { "label": "Tall", "value": "tall" },
+        { "label": "Square", "value": "square" }
+      ]
+    }
+  }
+}
+{% endschema %}

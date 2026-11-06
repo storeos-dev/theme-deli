@@ -1,0 +1,139 @@
+{
+  "$schema": "../../../packages/theme-engine/schemas/document.schema.json",
+  "schemaVersion": 1,
+  "prerender": "moderate",
+  "globalSetting": {
+    "colors": {
+      "primary": "#121212",
+      "background": "#ffffff",
+      "text": "#121212",
+      "muted": "#6b6b6b",
+      "border": "#e5e5e5",
+      "accent": "#121212",
+      "page": "#ffffff"
+    },
+    "fonts": {
+      "heading": "Assistant",
+      "body": "Assistant"
+    },
+    "typography": {
+      "heading": {
+        "family": "Assistant",
+        "weight": "600"
+      },
+      "body": {
+        "family": "Assistant",
+        "size": "16px"
+      },
+      "caption": {
+        "size": "13px",
+        "letterSpacing": "0.02em"
+      }
+    },
+    "siteStyle": {
+      "layout": {
+        "containerWidth": "full"
+      },
+      "buttons": {},
+      "fields": {},
+      "images": {}
+    }
+  },
+  "chrome": {
+    "top": [
+      {
+        "type": "announcement-bar",
+        "props": {
+          "backgroundColor": "var(--sf-primary)",
+          "color": "var(--sf-background)"
+        }
+      },
+      {
+        "type": "header",
+        "props": {
+          "links": [
+            {
+              "label": "Home",
+              "href": "/"
+            },
+            {
+              "label": "Shop all",
+              "href": "/collections/all"
+            }
+          ]
+        }
+      }
+    ],
+    "bottom": ["footer"]
+  },
+  "pages": {
+    "home": [
+      {
+        "type": "image-banner",
+        "props": {
+          "contentAlign": "bottom-left",
+          "image": {
+            "fileAssetId": "6aec0938ee9db4c06a93885a",
+            "key": "demo-grocery/unlistedFiles/charlotte-karlsen-DAih2b5MFcA-unsplash-d9ce9dc4-af9d-469c-979b-ebdf36f93713.jpg",
+            "provider": "S3",
+            "alt": null
+          },
+          "contentAlignTablet": "bottom-left",
+          "contentAlignDesktop": "bottom-left"
+        }
+      },
+      "featured-collection",
+      "multicolumn",
+      "rich-text",
+      {
+        "type": "collage",
+        "props": {
+          "heading": "In the studio",
+          "items": [
+            {
+              "image": {
+                "fileAssetId": "6aeac4334146af094f6a34dd",
+                "key": "demo-grocery/seed/khichuri-mixed-by-chinigura-rice-b8465376-0c30-4012-896d-276663c5a08a.jpg",
+                "provider": "S3",
+                "external": null,
+                "mimeType": null,
+                "alt": "khichuri mixed by chinigura rice"
+              },
+              "alt": "",
+              "href": ""
+            },
+            {
+              "image": {
+                "fileAssetId": "6aeac43e4146af094f6a35df",
+                "key": "demo-grocery/seed/dried-chingri-fish-bce9797b-230b-4502-b89e-649ec48d794f.jpg",
+                "provider": "S3",
+                "external": null,
+                "mimeType": null,
+                "alt": "dried chingri fish"
+              },
+              "alt": "",
+              "href": ""
+            },
+            {
+              "image": {
+                "fileAssetId": "6aeac4434146af094f6a3615",
+                "key": "demo-grocery/seed/borboti-alu-mixed-fcd91a80-b3e4-40b8-ae23-7ccff84456e9.jpg",
+                "provider": "S3",
+                "external": null,
+                "mimeType": null,
+                "alt": "borboti alu mixed"
+              },
+              "alt": "",
+              "href": ""
+            }
+          ]
+        }
+      }
+    ],
+    "collection": ["main-collection"],
+    "product": ["main-product", "product-grid"],
+    "search": ["main-search"],
+    "checkout": ["main-checkout"],
+    "order-confirmation": ["main-order-confirmation"]
+  }
+}

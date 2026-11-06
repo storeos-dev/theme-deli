@@ -1,0 +1,210 @@
+{% assign filter_layout = props.filterLayout | default: 'sidebar' %}
+{% assign current_sort = request.sort | default: props.sort | default: 'newest' %}
+{% assign show_paging = false %}
+{% if props.pagingMode != 'none' %}
+  {% if collection.previous_page or collection.next_page %}
+    {% assign show_paging = true %}
+  {% endif %}
+{% endif %}
+
+{% capture filters %}
+  <nav aria-label="{{ 'collections.filters' | t }}">
+    {% if props.sidebarTitle != blank %}
+      <p class="sf-caption mb-3 uppercase tracking-wide text-ritual-muted">{{ props.sidebarTitle }}</p>
+    {% else %}
+      <p class="sf-caption mb-3 uppercase tracking-wide text-ritual-muted">{{ 'collections.filters' | t }}</p>
+    {% endif %}
+    <ul class="{% if filter_layout == 'top' %}flex gap-2 overflow-x-auto pb-1{% else %}flex gap-2 overflow-x-auto pb-1 lg:block lg:space-y-1 lg:overflow-visible lg:pb-0{% endif %}">
+      <li>
+        <a
+          class="block whitespace-nowrap text-sm {% if collection.handle == 'all' %}font-semibold text-ritual-fg{% else %}text-ritual-muted hover:text-ritual-fg{% endif %}"
+          href="{{ 'all' | collection_href: current_sort, 1, request.q }}"
+        >{{ 'collections.all_products' | t }}</a>
+      </li>
+      {% for item in collections %}
+        <li>
+          <a
+            class="block whitespace-nowrap text-sm {% if item.handle == collection.handle %}font-semibold text-ritual-fg{% else %}text-ritual-muted hover:text-ritual-fg{% endif %}"
+            href="{{ item.handle | collection_href: current_sort, 1, request.q }}"
+          >{{ item.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+{% endcapture %}
+
+{% capture sort_links %}
+  <div class="flex flex-wrap items-center gap-3 text-sm" role="group" aria-label="{{ 'collections.sort' | t }}">
+    <a
+      class="{% if current_sort == 'newest' %}font-semibold text-ritual-fg{% else %}text-ritual-muted hover:text-ritual-fg{% endif %}"
+      href="{{ collection.handle | collection_href: 'newest', 1, request.q }}"
+    >{{ 'collections.sort_newest' | t }}</a>
+    <a
+      class="{% if current_sort == 'oldest' %}font-semibold text-ritual-fg{% else %}text-ritual-muted hover:text-ritual-fg{% endif %}"
+      href="{{ collection.handle | collection_href: 'oldest', 1, request.q }}"
+    >{{ 'collections.sort_oldest' | t }}</a>
+    <a
+      class="{% if current_sort == 'title' %}font-semibold text-ritual-fg{% else %}text-ritual-muted hover:text-ritual-fg{% endif %}"
+      href="{{ collection.handle | collection_href: 'title', 1, request.q }}"
+    >{{ 'collections.sort_title' | t }}</a>
+  </div>
+{% endcapture %}
+
+{% capture product_grid %}
+  <div class="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6">
+    {% for product in collection.products %}
+      {% render 'product-card', product: product %}
+    {% else %}
+      <p class="col-span-full text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
+    {% endfor %}
+  </div>
+{% endcapture %}
+
+{% capture paging %}
+  {% if show_paging %}
+    <div class="mt-10 flex items-center justify-between text-sm">
+      {% if collection.previous_page %}
+        <a
+          class="font-medium text-ritual-fg hover:text-ritual-muted"
+          href="{{ collection.handle | collection_href: current_sort, collection.previous_page, request.q }}"
+        >{{ 'collections.previous' | t }}</a>
+      {% else %}
+        <span class="text-ritual-muted">{{ 'collections.previous' | t }}</span>
+      {% endif %}
+      <span class="sf-caption uppercase tracking-wide text-ritual-muted">
+        {{ 'collections.page' | t }} {{ collection.current_page }}
+        {% if collection.pages > 1 %}/ {{ collection.pages }}{% endif %}
+      </span>
+      {% if collection.next_page %}
+        <a
+          class="font-medium text-ritual-fg hover:text-ritual-muted"
+          href="{{ collection.handle | collection_href: current_sort, collection.next_page, request.q }}"
+        >{{ 'collections.next' | t }}</a>
+      {% else %}
+        <span class="text-ritual-muted">{{ 'collections.next' | t }}</span>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endcapture %}
+
+<section class="page-width mx-auto px-5 py-10 md:py-14">
+  {% if filter_layout == 'top' %}
+    <header class="mb-6 border-b border-ritual-border pb-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div class="min-w-0">
+          <h1 class="sf-heading">{{ collection.title }}</h1>
+          {% if props.showDescription and collection.description != blank %}
+            <p class="sf-body mt-2 text-ritual-muted">{{ collection.description }}</p>
+          {% endif %}
+          {% if props.showCount %}
+            <p class="sf-caption mt-3 uppercase tracking-wide text-ritual-muted">
+              {{ collection.products_count }} {{ 'collections.products' | t }}
+            </p>
+          {% endif %}
+        </div>
+        {% if props.showSort %}{{ sort_links | raw }}{% endif %}
+      </div>
+      <div class="mt-5">{{ filters | raw }}</div>
+    </header>
+    {{ product_grid | raw }}
+    {{ paging | raw }}
+  {% else %}
+    <header class="mb-8 max-w-3xl md:mb-10">
+      <h1 class="sf-heading">{{ collection.title }}</h1>
+      {% if props.showDescription and collection.description != blank %}
+        <p class="sf-body mt-3 text-ritual-muted">{{ collection.description }}</p>
+      {% endif %}
+      {% if props.showCount %}
+        <p class="sf-caption mt-4 uppercase tracking-wide text-ritual-muted">
+          {{ collection.products_count }} {{ 'collections.products' | t }}
+        </p>
+      {% endif %}
+    </header>
+    <div class="grid gap-8 lg:grid-cols-[12rem_minmax(0,1fr)]">
+      <aside class="lg:sticky lg:top-24 lg:self-start">
+        {{ filters | raw }}
+        {% if props.showSort %}
+          <div class="mt-8 hidden lg:block">
+            <p class="sf-caption mb-3 uppercase tracking-wide text-ritual-muted">{{ 'collections.sort' | t }}</p>
+            {{ sort_links | raw }}
+          </div>
+        {% endif %}
+      </aside>
+      <div>
+        {% if props.showSort %}
+          <div class="mb-6 lg:hidden">{{ sort_links | raw }}</div>
+        {% endif %}
+        {{ product_grid | raw }}
+        {{ paging | raw }}
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "label": "Collection grid",
+  "group": "page",
+  "icon": "layout-grid",
+  "regions": ["pages.collection"],
+  "defaultProps": {
+    "filterLayout": "sidebar",
+    "sidebarTitle": "Collections",
+    "showDescription": true,
+    "showCount": true,
+    "showSort": true,
+    "sort": "newest",
+    "pagingMode": "pagination"
+  },
+  "settings": {
+    "filterLayout": {
+      "kind": "select",
+      "label": "Filter layout",
+      "default": "sidebar",
+      "options": [
+        { "label": "Sidebar", "value": "sidebar" },
+        { "label": "Top", "value": "top" }
+      ]
+    },
+    "sidebarTitle": {
+      "kind": "text",
+      "label": "Filters title",
+      "default": "Collections"
+    },
+    "showDescription": {
+      "kind": "boolean",
+      "label": "Show description",
+      "default": true
+    },
+    "showCount": {
+      "kind": "boolean",
+      "label": "Show product count",
+      "default": true
+    },
+    "showSort": {
+      "kind": "boolean",
+      "label": "Show sort",
+      "default": true
+    },
+    "sort": {
+      "kind": "select",
+      "label": "Default sort",
+      "default": "newest",
+      "options": [
+        { "label": "Newest", "value": "newest" },
+        { "label": "Oldest", "value": "oldest" },
+        { "label": "Title", "value": "title" }
+      ]
+    },
+    "pagingMode": {
+      "kind": "select",
+      "label": "Paging",
+      "default": "pagination",
+      "options": [
+        { "label": "Pagination", "value": "pagination" },
+        { "label": "None", "value": "none" }
+      ]
+    }
+  }
+}
+{% endschema %}

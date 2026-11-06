@@ -1,0 +1,55 @@
+{% assign _content_align = props.contentAlign %}
+<section class="page-width mx-auto px-5 py-12 md:py-16">
+  <div
+    class="storeos-sf--content-align mx-auto w-full max-w-2xl"
+    style="{{ props | content_align_style }}"
+  >
+    {% if props.heading != blank %}
+      <h2 class="sf-heading text-balance">{{ props.heading }}</h2>
+    {% endif %}
+    {% if props.text != blank %}
+      <p class="sf-body mt-4 whitespace-pre-line text-ritual-muted">{{ props.text }}</p>
+    {% endif %}
+    {% if props.buttonLabel != blank %}
+      <a
+        class="mt-8 inline-flex items-center border border-ritual-fg px-6 py-3 text-sm font-medium tracking-wide text-ritual-fg transition hover:bg-ritual-fg hover:text-ritual-bg"
+        href="{{ props.buttonLink | default: '#' }}"
+      >
+        {{ props.buttonLabel }}
+      </a>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Rich text",
+  "group": "page",
+  "icon": "type",
+  "defaultProps": {
+    "contentAlign": "middle-center"
+  },
+  "settings": {
+    "heading": { "kind": "text", "default": "Our story" },
+    "text": {
+      "kind": "textarea",
+      "default": "We make quiet, lasting products for daily life — no noise, just care."
+    },
+    "buttonLabel": { "kind": "text", "label": "Button label" },
+    "buttonLink": { "kind": "link", "label": "Button link" },
+    "contentAlign": {
+      "kind": "content-align",
+      "label": "Content alignment",
+      "hint": "Where this block’s copy sits for each device.",
+      "tabletKey": "contentAlignTablet",
+      "desktopKey": "contentAlignDesktop",
+      "defaults": {
+        "phone": "middle-center",
+        "tablet": "middle-center",
+        "desktop": "middle-center"
+      },
+      "default": "middle-center"
+    }
+  }
+}
+{% endschema %}

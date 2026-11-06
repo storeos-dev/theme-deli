@@ -1,0 +1,18 @@
+{
+  "name": "@storeos-themes/ritual",
+  "private": true,
+  "scripts": {
+    "css": "bunx @tailwindcss/cli -i ./styles/input.css -o ./assets/theme.css",
+    "css:watch": "bunx @tailwindcss/cli -i ./styles/input.css -o ./assets/theme.css --watch",
+    "js": "bun build ./src/theme.js --outfile ./assets/theme.js --minify",
+    "js:watch": "bun build ./src/theme.js --outfile ./assets/theme.js --minify --watch",
+    "build": "bun run css && bun run js"
+  },
+  "dependencies": {
+    "alpinejs": "^3.14.9"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.17",
+    "tailwindcss": "^4.1.17"
+  }
+}

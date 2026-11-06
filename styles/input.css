@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@source "../layout/**/*.fluid";
+@source "../widgets/**/*.fluid";
+@source "../snippets/**/*.fluid";
+@source "../config/**/*.json";
+
+@theme {
+  /* Site Settings → Typography / Colors: --sf-* from content_for_header */
+  --font-sans: var(--sf-font-body, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif);
+  --font-heading: var(--sf-font-heading, var(--font-sans));
+  --color-ritual-fg: var(--sf-text, #121212);
+  --color-ritual-bg: var(--sf-background, #ffffff);
+  --color-ritual-page: var(--sf-page, var(--sf-background, #ffffff));
+  --color-ritual-muted: var(--sf-muted, #6b6b6b);
+  --color-ritual-border: var(--sf-border, #e5e5e5);
+  --color-ritual-accent: var(--sf-accent, #121212);
+  --color-ritual-primary: var(--sf-primary, #121212);
+}
+
+@layer base {
+  body {
+    @apply m-0 bg-ritual-page font-sans text-ritual-fg antialiased;
+    /* size/weight/line-height come from engine `.sf-body` / body rule */
+  }
+
+  img {
+    @apply block max-w-full;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+}
+
+/*
+  Defaults on the engine wrapper (`.storeos-widget--*`), not inner markup.
+  Style-tab common-style uses `var(--sf-cs-*, revert-layer)` so unset props
+  fall through to these; set props override them.
+
+  Typography roles (`.sf-display` … `.sf-caption`) are printed by the engine
+  in content_for_header — use those classes in widgets for merchant-driven type.
+*/
+@layer components {
+  /* Site Settings → Layout: --sf-content-width / --sf-radius from content_for_header */
+  .page-width {
+    width: 100%;
+    max-width: var(--sf-content-width, 72rem);
+  }
+
+  .storeos-widget--announcement-bar {
+    @apply border-b border-ritual-border bg-ritual-bg px-5 py-2.5 text-center text-ritual-fg;
+  }
+
+  .storeos-widget--header {
+    @apply border-b border-ritual-border bg-ritual-bg text-ritual-fg;
+  }
+
+  .storeos-widget--footer {
+    @apply mt-16 border-t border-ritual-border bg-ritual-bg text-ritual-fg;
+  }
+
+  .storeos-widget--featured-collection,
+  .storeos-widget--image-banner,
+  .storeos-widget--rich-text,
+  .storeos-widget--multicolumn,
+  .storeos-widget--collage,
+  .storeos-widget--video-banner,
+  .storeos-widget--main-collection,
+  .storeos-widget--main-product,
+  .storeos-widget--product-grid,
+  .storeos-widget--main-search,
+  .storeos-widget--main-checkout,
+  .storeos-widget--main-order-confirmation {
+    @apply text-ritual-fg;
+  }
+
+  .storeos-widget--header #ritual-cart-drawer {
+    @apply contents;
+  }
+}

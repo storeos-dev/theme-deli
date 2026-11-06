@@ -1,0 +1,130 @@
+<footer>
+  <div class="page-width mx-auto grid gap-10 px-5 py-12 md:grid-cols-2 lg:grid-cols-4">
+    {% if props.columns.size > 0 %}
+      {% for column in props.columns %}
+        <div>
+          {% if column.title != blank %}
+            <h2 class="mb-4 text-sm font-medium tracking-wide">{{ column.title }}</h2>
+          {% endif %}
+          {% if column.links.size > 0 %}
+            <ul class="space-y-2.5">
+              {% for link in column.links %}
+                <li>
+                  <a class="text-sm text-ritual-muted hover:text-ritual-fg" href="{{ link.href }}">{{ link.label }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div>
+      {% if props.missionHeading != blank %}
+        <h2 class="mb-4 text-sm font-medium tracking-wide">{{ props.missionHeading }}</h2>
+      {% endif %}
+      {% if props.missionText != blank %}
+        <p class="text-sm leading-relaxed text-ritual-muted">{{ props.missionText }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      {% if props.showNewsletter %}
+        <h2 class="mb-4 text-sm font-medium tracking-wide">{{ props.newsletterHeading }}</h2>
+        <form class="flex flex-col gap-3" action="#" method="post" @submit.prevent>
+          <label class="sr-only" for="ritual-newsletter-email">{{ 'general.email' | t }}</label>
+          <input
+            id="ritual-newsletter-email"
+            class="w-full border border-ritual-border bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-ritual-muted focus:border-ritual-fg"
+            type="email"
+            name="email"
+            placeholder="{{ 'general.email' | t }}"
+            required
+            autocomplete="email"
+          >
+          <button
+            class="border border-ritual-fg bg-ritual-fg px-4 py-2.5 text-sm font-medium tracking-wide text-ritual-bg"
+            type="submit"
+          >
+            {{ 'general.subscribe' | t }}
+          </button>
+        </form>
+      {% endif %}
+
+      {% if props.socialLinks.size > 0 %}
+        <ul class="mt-6 flex flex-wrap gap-x-4 gap-y-2">
+          {% for link in props.socialLinks %}
+            <li>
+              <a class="text-sm text-ritual-muted hover:text-ritual-fg" href="{{ link.href }}" rel="noopener noreferrer" target="_blank">
+                {{ link.label }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="border-t border-ritual-border">
+    <div class="page-width mx-auto flex flex-col gap-2 px-5 py-5 text-sm text-ritual-muted sm:flex-row sm:items-center sm:justify-between">
+      <p>&copy; {{ 'now' | date: '%Y' }}, {{ shop.name }}</p>
+      {% if props.showPoweredBy %}
+        <p>{{ 'general.powered_by' | t }}</p>
+      {% endif %}
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "label": "Footer",
+  "group": "footer",
+  "icon": "panel-bottom",
+  "regions": ["chrome.bottom"],
+  "settings": {
+    "columns": {
+      "kind": "footer-columns",
+      "label": "Link columns",
+      "default": [
+        {
+          "title": "Quick links",
+          "links": [
+            { "label": "Shop all", "href": "/collections/all" },
+            { "label": "Blog", "href": "/blog" }
+          ]
+        },
+        {
+          "title": "Info",
+          "links": [
+            { "label": "About", "href": "/pages/about" },
+            { "label": "Contact us", "href": "/pages/contact" },
+            { "label": "Shipping policy", "href": "/pages/shipping-policy" }
+          ]
+        }
+      ]
+    },
+    "missionHeading": { "kind": "text", "label": "Mission heading", "default": "Our mission" },
+    "missionText": {
+      "kind": "textarea",
+      "label": "Mission text",
+      "default": "Quality materials, good designs, craftsmanship and sustainability."
+    },
+    "showNewsletter": { "kind": "boolean", "label": "Show newsletter", "default": true },
+    "newsletterHeading": {
+      "kind": "text",
+      "label": "Newsletter heading",
+      "default": "Subscribe to our emails"
+    },
+    "socialLinks": {
+      "kind": "link-list",
+      "label": "Social links",
+      "default": []
+    },
+    "showPoweredBy": {
+      "kind": "boolean",
+      "label": "Show “Powered by StoreOS”",
+      "default": true
+    }
+  }
+}
+{% endschema %}

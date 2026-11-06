@@ -1,0 +1,53 @@
+{% assign items = widget.data.collectionId.products | default: products %}
+{% assign collection_url = widget.data.collectionId.url | default: '/collections/all' %}
+
+<section class="page-width mx-auto px-5 py-12 md:py-16">
+  <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+    {% if props.heading != blank %}
+      <h2 class="sf-heading">{{ props.heading }}</h2>
+    {% endif %}
+    {% if props.showViewAll %}
+      <a class="sf-caption uppercase tracking-wide text-ritual-muted hover:text-ritual-fg" href="{{ collection_url }}">
+        {% if props.viewAllLabel != blank %}
+          {{ props.viewAllLabel }}
+        {% else %}
+          {{ 'general.view_all' | t }}
+        {% endif %}
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6">
+    {% for product in items limit: props.limit %}
+      {% render 'product-card', product: product %}
+    {% else %}
+      <p class="col-span-full text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Featured collection",
+  "group": "dynamic",
+  "icon": "shopping-bag",
+  "settings": {
+    "heading": { "kind": "text", "default": "New arrivals" },
+    "collectionId": {
+      "kind": "collection",
+      "label": "Collection",
+      "hint": "Leave empty for the newest products."
+    },
+    "limit": {
+      "kind": "number",
+      "label": "Products to show",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "default": 8
+    },
+    "showViewAll": { "kind": "boolean", "label": "Show view all", "default": true },
+    "viewAllLabel": { "kind": "text", "label": "View all label", "default": "View all" }
+  }
+}
+{% endschema %}

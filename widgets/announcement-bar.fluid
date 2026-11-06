@@ -1,0 +1,30 @@
+{% if props.text != blank %}
+  <div class="sf-caption" role="region" aria-label="{{ 'general.announcement' | t }}">
+    {% if props.link != blank %}
+      <a class="underline-offset-2 hover:underline" href="{{ props.link }}">{{ props.text }}</a>
+    {% else %}
+      {{ props.text }}
+    {% endif %}
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "label": "Announcement bar",
+  "group": "header",
+  "icon": "megaphone",
+  "regions": ["chrome.top"],
+  "settings": {
+    "text": {
+      "kind": "text",
+      "label": "Text",
+      "default": "Free shipping available on all orders!"
+    },
+    "link": {
+      "kind": "link",
+      "label": "Link",
+      "hint": "Optional — makes the announcement clickable."
+    }
+  }
+}
+{% endschema %}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+    {{ content_for_header }}
+  </head>
+  <body class="theme-ritual min-h-screen" id="storeos-shop-{{ shop.uid }}">
+    <script type="application/json" id="storeos-config">{"tenant":"{{ shop.uid }}","currency":"{{ shop.currency }}","apiBase":"","cdnBase":"https://cdn.storeos.dev"}</script>
+    <a
+      class="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:bg-ritual-bg focus:px-3 focus:py-2 focus:text-sm"
+      href="#main"
+    >{{ 'general.skip_to_content' | t }}</a>
+
+    {{ content_for_top }}
+
+    <main id="main">
+      {{ content_for_layout }}
+    </main>
+
+    {{ content_for_bottom }}
+
+    {{ 'theme.js' | asset_url | script_tag }}
+  </body>
+</html>

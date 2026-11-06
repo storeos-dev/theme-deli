@@ -1,0 +1,23 @@
+<a class="group flex flex-col gap-3 text-ritual-fg" href="{{ product.url }}">
+  <div class="relative aspect-[4/5] overflow-hidden bg-ritual-border/40">
+    {% if product.featured_image %}
+      <img
+        class="size-full object-cover transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+        src="{{ product.featured_image | image_url }}"
+        alt="{{ product.featured_image.alt | default: product.title }}"
+        loading="lazy"
+      >
+    {% endif %}
+    {% unless product.available %}
+      <span class="sf-caption absolute left-2 top-2 bg-ritual-bg px-2 py-1 uppercase tracking-wide">
+        {{ 'products.sold_out' | t }}
+      </span>
+    {% endunless %}
+  </div>
+  <div class="flex flex-col gap-1">
+    <h3 class="sf-subhead text-[15px] font-medium leading-snug tracking-normal normal-case">
+      {{ product.title }}
+    </h3>
+    {% render 'price', price: product.price, compare_at_price: product.compare_at_price %}
+  </div>
+</a>

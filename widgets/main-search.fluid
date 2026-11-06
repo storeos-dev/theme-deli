@@ -1,0 +1,86 @@
+{% assign cols = props.columns | default: 4 %}
+{% if cols == 2 %}
+  {% assign grid_class = 'grid grid-cols-2 gap-x-4 gap-y-8 md:gap-x-6' %}
+{% elsif cols == 3 %}
+  {% assign grid_class = 'grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6' %}
+{% else %}
+  {% assign grid_class = 'grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6' %}
+{% endif %}
+
+<section class="page-width mx-auto px-5 py-10 md:py-14">
+  <header class="mb-8 max-w-2xl md:mb-10">
+    <h1 class="sf-heading">{{ 'search.title' | t }}</h1>
+    {% if search.performed %}
+      <p class="sf-caption mt-3 uppercase tracking-wide text-ritual-muted">
+        {{ search.results_count }} {{ 'search.results' | t }}
+        {% if search.terms != blank %}
+          <span class="normal-case tracking-normal"> · “{{ search.terms }}”</span>
+        {% endif %}
+      </p>
+    {% endif %}
+  </header>
+
+  <form
+    class="mb-10 flex max-w-xl items-stretch border border-ritual-border bg-ritual-bg focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ritual-fg"
+    action="/search"
+    method="get"
+    role="search"
+  >
+    <label class="sr-only" for="ritual-main-search">{{ 'search.placeholder' | t }}</label>
+    <input
+      id="ritual-main-search"
+      class="min-w-0 flex-1 border-0 bg-transparent px-4 py-3 text-sm text-ritual-fg outline-none placeholder:text-ritual-muted"
+      type="search"
+      name="q"
+      value="{{ search.terms }}"
+      placeholder="{{ 'search.placeholder' | t }}"
+      autocomplete="off"
+    >
+    <button
+      class="shrink-0 bg-ritual-primary px-5 text-sm font-medium text-ritual-bg transition-colors duration-200 hover:opacity-90"
+      type="submit"
+    >{{ 'search.submit' | t }}</button>
+  </form>
+
+  {% if search.performed %}
+    <div class="{{ grid_class }}">
+      {% for product in search.results %}
+        {% render 'product-card', product: product %}
+      {% else %}
+        <p class="col-span-full text-sm text-ritual-muted">{{ 'search.no_results' | t }}</p>
+      {% endfor %}
+    </div>
+  {% elsif props.emptyHint != blank %}
+    <p class="text-sm text-ritual-muted">{{ props.emptyHint }}</p>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "label": "Search results",
+  "group": "page",
+  "icon": "search",
+  "regions": ["pages.search"],
+  "defaultProps": {
+    "columns": 4,
+    "emptyHint": "Search the catalog by product name."
+  },
+  "settings": {
+    "columns": {
+      "kind": "select",
+      "label": "Columns",
+      "default": 4,
+      "options": [
+        { "label": "2", "value": 2 },
+        { "label": "3", "value": 3 },
+        { "label": "4", "value": 4 }
+      ]
+    },
+    "emptyHint": {
+      "kind": "text",
+      "label": "Hint before search",
+      "default": "Search the catalog by product name."
+    }
+  }
+}
+{% endschema %}

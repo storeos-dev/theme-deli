@@ -1,0 +1,54 @@
+<section class="page-width mx-auto px-5 py-14 text-center md:py-20">
+  <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-ritual-primary/10 text-ritual-primary">
+    <svg class="size-7" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <h1 class="sf-heading mt-6">
+    {% if props.heading != blank %}{{ props.heading }}{% else %}{{ 'checkout.thank_you' | t }}{% endif %}
+  </h1>
+  <p class="sf-body mx-auto mt-3 max-w-md text-ritual-muted">
+    {% if props.subtitle != blank %}
+      {{ props.subtitle }}
+    {% else %}
+      {{ 'checkout.thank_you_body' | t }}
+    {% endif %}
+  </p>
+  {% if order.invoice_uid != blank %}
+    <p class="sf-caption mt-5 uppercase tracking-wide text-ritual-muted">
+      {{ 'checkout.order_id' | t }}
+      <span class="ml-1 font-medium normal-case tracking-normal text-ritual-fg">{{ order.invoice_uid }}</span>
+    </p>
+  {% endif %}
+  <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
+    <a
+      class="inline-flex items-center justify-center bg-ritual-primary px-5 py-3 text-sm font-medium text-ritual-bg"
+      href="/"
+    >{{ 'checkout.back_home' | t }}</a>
+    <a
+      class="inline-flex items-center justify-center border border-ritual-border px-5 py-3 text-sm font-medium text-ritual-fg"
+      href="/collections/all"
+    >{{ 'cart.continue' | t }}</a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Order confirmation",
+  "group": "page",
+  "icon": "circle-check",
+  "regions": ["pages.order-confirmation"],
+  "defaultProps": {
+    "heading": "Thank you",
+    "subtitle": "Your order has been placed. We will confirm it shortly."
+  },
+  "settings": {
+    "heading": { "kind": "text", "label": "Heading", "default": "Thank you" },
+    "subtitle": {
+      "kind": "text",
+      "label": "Subtitle",
+      "default": "Your order has been placed. We will confirm it shortly."
+    }
+  }
+}
+{% endschema %}

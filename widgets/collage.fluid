@@ -1,0 +1,51 @@
+<section class="page-width mx-auto px-5 py-12 md:py-16">
+  {% if props.heading != blank %}
+    <h2 class="sf-heading mb-8 text-center">{{ props.heading }}</h2>
+  {% endif %}
+
+  {% if props.items.size > 0 %}
+    <div class="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
+      {% for item in props.items %}
+        {% assign src = item.image | image_url %}
+        {% if src != blank %}
+          {% if item.href != blank %}
+            <a class="group relative block aspect-square overflow-hidden bg-ritual-border/40 {% if forloop.first %}md:col-span-2 md:row-span-2 md:aspect-auto md:min-h-full{% endif %}" href="{{ item.href }}">
+              <img
+                class="size-full object-cover transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                src="{{ src }}"
+                alt="{{ item.alt }}"
+                loading="lazy"
+              >
+            </a>
+          {% else %}
+            <div class="relative aspect-square overflow-hidden bg-ritual-border/40 {% if forloop.first %}md:col-span-2 md:row-span-2 md:aspect-auto md:min-h-full{% endif %}">
+              <img
+                class="size-full object-cover"
+                src="{{ src }}"
+                alt="{{ item.alt }}"
+                loading="lazy"
+              >
+            </div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "label": "Collage",
+  "group": "page",
+  "icon": "layout-grid",
+  "settings": {
+    "heading": { "kind": "text", "label": "Heading" },
+    "items": {
+      "kind": "image-slides",
+      "label": "Images",
+      "hint": "The first image is featured larger on desktop.",
+      "default": []
+    }
+  }
+}
+{% endschema %}

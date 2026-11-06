@@ -1,0 +1,76 @@
+{% assign image_src = props.image | image_url %}
+{% comment %} props.contentAlign (+ tablet/desktop) applied via content_align_style {% endcomment %}
+{% assign _content_align = props.contentAlign %}
+
+<section class="relative isolate min-h-[min(70vh,36rem)] overflow-hidden bg-ritual-fg text-ritual-bg">
+  {% if image_src != blank %}
+    <img
+      class="absolute inset-0 -z-10 size-full object-cover"
+      src="{{ image_src }}"
+      alt="{{ props.imageAlt }}"
+      {% if props.imagePriority %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+    >
+    <div class="absolute inset-0 -z-10 bg-black/35" aria-hidden="true"></div>
+  {% endif %}
+
+  <div
+    class="storeos-sf--content-align page-width mx-auto min-h-[min(70vh,36rem)] px-5 py-16"
+    style="{{ props | content_align_style }}"
+  >
+    {% if props.heading != blank %}
+      <h1 class="sf-display max-w-3xl text-balance text-ritual-bg">{{ props.heading }}</h1>
+    {% endif %}
+    {% if props.subheading != blank %}
+      <p class="sf-body mt-4 max-w-xl text-ritual-bg/85">{{ props.subheading }}</p>
+    {% endif %}
+    {% if props.buttonLabel != blank %}
+      <a
+        class="mt-8 inline-flex items-center border border-ritual-bg bg-ritual-bg px-6 py-3 text-sm font-medium tracking-wide text-ritual-fg transition hover:bg-transparent hover:text-ritual-bg"
+        href="{{ props.buttonLink | default: '/collections/all' }}"
+      >
+        {{ props.buttonLabel }}
+      </a>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Image banner",
+  "group": "page",
+  "icon": "image",
+  "defaultProps": {
+    "contentAlign": "middle-center"
+  },
+  "settings": {
+    "image": { "kind": "image", "label": "Image" },
+    "imageAlt": { "kind": "text", "label": "Image alt text" },
+    "imagePriority": {
+      "kind": "boolean",
+      "label": "Load image first",
+      "hint": "Use on the first banner of the home page.",
+      "default": true
+    },
+    "heading": { "kind": "text", "default": "Everyday essentials" },
+    "subheading": {
+      "kind": "textarea",
+      "default": "Thoughtful pieces for a quieter routine."
+    },
+    "buttonLabel": { "kind": "text", "default": "Shop all" },
+    "buttonLink": { "kind": "link", "default": "/collections/all" },
+    "contentAlign": {
+      "kind": "content-align",
+      "label": "Content alignment",
+      "hint": "Where heading and button sit on the banner for each device.",
+      "tabletKey": "contentAlignTablet",
+      "desktopKey": "contentAlignDesktop",
+      "defaults": {
+        "phone": "middle-center",
+        "tablet": "middle-center",
+        "desktop": "middle-center"
+      },
+      "default": "middle-center"
+    }
+  }
+}
+{% endschema %}
