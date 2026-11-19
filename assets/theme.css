@@ -1932,8 +1932,8 @@
     .md\:grid-cols-\[1fr_16rem\] {
       grid-template-columns: 1fr 16rem;
     }
-    .md\:grid-cols-\[1fr_minmax\(0\,40rem\)_1fr\] {
-      grid-template-columns: 1fr minmax(0,40rem) 1fr;
+    .md\:grid-cols-\[minmax\(max-content\,1fr\)_minmax\(0\,40rem\)_minmax\(max-content\,1fr\)\] {
+      grid-template-columns: minmax(max-content,1fr) minmax(0,40rem) minmax(max-content,1fr);
     }
     .md\:gap-4 {
       gap: calc(var(--spacing) * 4);

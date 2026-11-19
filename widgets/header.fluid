@@ -5,7 +5,7 @@
 >
   {%- comment -%} Tier 1: brand bar {%- endcomment -%}
   <div class="bg-ritual-bg text-ritual-fg container mx-auto my-2">
-    <div class="page-width mx-auto flex items-center gap-3 px-4 py-2.5 md:grid md:grid-cols-[1fr_minmax(0,40rem)_1fr] md:gap-6">
+    <div class="page-width mx-auto flex items-center gap-3 px-4 py-2.5 md:grid md:grid-cols-[minmax(max-content,1fr)_minmax(0,40rem)_minmax(max-content,1fr)] md:gap-6">
       <button
         type="button"
         class="inline-flex size-10 shrink-0 items-center justify-center rounded-box hover:bg-ritual-soft md:hidden"
@@ -35,7 +35,7 @@
 
       <div class="ml-auto flex shrink-0 items-center gap-2 md:justify-self-end">
         {% if props.helpText != blank %}
-          <a class="hidden h-10 items-center gap-1.5 rounded-box px-2 text-sm font-medium hover:bg-ritual-soft hover:text-ritual-accent xl:inline-flex" href="{{ props.helpLink | default: '#' }}">
+          <a class="hidden h-10 items-center gap-1.5 whitespace-nowrap rounded-box px-2 text-sm font-medium hover:bg-ritual-soft hover:text-ritual-accent xl:inline-flex" href="{{ props.helpLink | default: '#' }}">
             <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M4 13v-1a8 8 0 0 1 16 0v1M4 13v3a2 2 0 0 0 2 2h1v-6H6a2 2 0 0 0-2 2Zm16 0v3a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
             </svg>
