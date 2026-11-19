@@ -21,7 +21,7 @@
   </header>
 
   <form
-    class="mb-10 flex max-w-xl items-stretch border border-ritual-border bg-ritual-bg focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ritual-fg"
+    class="rounded-box overflow-hidden mb-10 flex max-w-xl items-stretch border border-ritual-border bg-ritual-bg focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ritual-fg"
     action="/search"
     method="get"
     role="search"
@@ -37,7 +37,7 @@
       autocomplete="off"
     >
     <button
-      class="shrink-0 bg-ritual-primary px-5 text-sm font-medium text-ritual-bg transition-colors duration-200 hover:opacity-90"
+      class="rounded-box shrink-0 bg-ritual-primary px-5 text-sm font-medium text-ritual-on-primary transition-colors duration-200 hover:opacity-90"
       type="submit"
     >{{ 'search.submit' | t }}</button>
   </form>

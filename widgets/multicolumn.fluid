@@ -8,7 +8,7 @@
       {% for column in props.columns %}
         <div class="flex flex-col gap-3 text-center">
           {% if column.icon != blank %}
-            <div class="mx-auto flex size-10 items-center justify-center border border-ritual-border text-ritual-fg" aria-hidden="true">
+            <div class="rounded-box mx-auto flex size-10 items-center justify-center border border-ritual-border text-ritual-fg" aria-hidden="true">
               <span class="text-lg leading-none">{{ column.icon }}</span>
             </div>
           {% endif %}

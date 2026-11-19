@@ -4,18 +4,32 @@
 @source "../widgets/**/*.fluid";
 @source "../snippets/**/*.fluid";
 @source "../config/**/*.json";
+@source "../src/**/*.js";
 
 @theme {
   /* Site Settings → Typography / Colors: --sf-* from content_for_header */
-  --font-sans: var(--sf-font-body, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif);
+  --font-sans: var(--sf-font-body, "Rubik", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif);
   --font-heading: var(--sf-font-heading, var(--font-sans));
-  --color-ritual-fg: var(--sf-text, #121212);
+  --color-ritual-fg: var(--sf-text, #1f2937);
   --color-ritual-bg: var(--sf-background, #ffffff);
   --color-ritual-page: var(--sf-page, var(--sf-background, #ffffff));
-  --color-ritual-muted: var(--sf-muted, #6b6b6b);
-  --color-ritual-border: var(--sf-border, #e5e5e5);
-  --color-ritual-accent: var(--sf-accent, #121212);
-  --color-ritual-primary: var(--sf-primary, #121212);
+  --color-ritual-muted: var(--sf-muted, #6b7280);
+  --color-ritual-border: var(--sf-border, #e5e7eb);
+  /* Deli: accent = readable brand green for prices/links on white */
+  --color-ritual-accent: var(--sf-accent, #4d7c0f);
+  --color-ritual-primary: var(--sf-primary, #91c846);
+  /* Text/icons placed on top of the primary color */
+  --color-ritual-on-primary: var(--color-onPrimary, #1a2e05);
+  /* Yellow highlight for the search button, tile labels and badges */
+  --color-ritual-highlight: var(--color-highlight, #ffd43b);
+  /* Soft panel behind sections and the footer */
+  --color-ritual-soft: var(--color-soft, #f3f6ee);
+  /* Discount tags */
+  --color-ritual-sale: var(--color-sale, #e8590c);
+
+  /* One corner radius for every card, button, input and panel.
+     Follows Site Settings → Layout → radius (--sf-radius). */
+  --radius-box: var(--sf-radius, 8px);
 }
 
 @layer base {
@@ -35,6 +49,37 @@
   [x-cloak] {
     display: none !important;
   }
+
+  /* Native selects: custom chevron, same height/radius as other fields */
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    border-radius: var(--radius-box);
+    padding-right: 2.5rem !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='m5 7.5 5 5 5-5' stroke='%236b7280' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.1rem;
+  }
+  select:hover {
+    border-color: var(--color-ritual-primary);
+  }
+  select:focus-visible {
+    outline: 2px solid var(--color-ritual-primary);
+    outline-offset: 1px;
+  }
+
+  /* Hide native number spinners — quantity fields have their own − / + buttons */
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }
 
 /*
@@ -49,23 +94,27 @@
   /* Site Settings → Layout: --sf-content-width / --sf-radius from content_for_header */
   .page-width {
     width: 100%;
-    max-width: var(--sf-content-width, 72rem);
+    max-width: var(--sf-content-width, 80rem);
   }
 
   .storeos-widget--announcement-bar {
-    @apply border-b border-ritual-border bg-ritual-bg px-5 py-2.5 text-center text-ritual-fg;
+    @apply bg-ritual-accent px-5 py-2 text-center text-white;
   }
 
   .storeos-widget--header {
-    @apply border-b border-ritual-border bg-ritual-bg text-ritual-fg;
+    @apply sticky top-0 z-30 bg-ritual-bg text-ritual-fg shadow-sm;
   }
 
   .storeos-widget--footer {
-    @apply mt-16 border-t border-ritual-border bg-ritual-bg text-ritual-fg;
+    @apply mt-16 bg-ritual-soft text-ritual-fg;
   }
 
   .storeos-widget--featured-collection,
   .storeos-widget--image-banner,
+  .storeos-widget--hero-slider,
+  .storeos-widget--category-tiles,
+  .storeos-widget--feature-strip,
+  .storeos-widget--promo-banner,
   .storeos-widget--rich-text,
   .storeos-widget--multicolumn,
   .storeos-widget--collage,
@@ -81,5 +130,22 @@
 
   .storeos-widget--header #ritual-cart-drawer {
     @apply contents;
+  }
+
+  /* Centered, uppercase section titles (Shwapno-style "RECOMMENDED FOR YOU") */
+  .deli-section-title {
+    @apply font-heading text-xl font-semibold uppercase tracking-wide text-ritual-fg md:text-2xl;
+  }
+
+  /* Horizontal scroller used by sliders and product rows */
+  .deli-scroller {
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+  }
+  .deli-scroller::-webkit-scrollbar {
+    display: none;
+  }
+  .deli-scroller > * {
+    scroll-snap-align: start;
   }
 }

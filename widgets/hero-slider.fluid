@@ -1,0 +1,81 @@
+{% comment %}
+  Rounded promo-banner slider with arrows and dots. Each slide is an image
+  (with optional link). Falls back to a brand-colored panel with the heading.
+{% endcomment %}
+{% assign slide_count = 0 %}
+{% for item in props.items %}
+  {% assign src = item.image | image_url %}
+  {% if src != blank %}{% assign slide_count = slide_count | plus: 1 %}{% endif %}
+{% endfor %}
+
+<section class="page-width mx-auto px-4 pt-4 md:pt-6">
+  {% if slide_count > 0 %}
+    <div
+      class="relative overflow-hidden rounded-box"
+      x-data="{
+        i: 0,
+        n: {{ slide_count }},
+        go(k) { this.i = (k + this.n) % this.n; this.$refs.track.scrollTo({ left: this.$refs.track.clientWidth * this.i, behavior: 'smooth' }) },
+        sync() { this.i = Math.round(this.$refs.track.scrollLeft / this.$refs.track.clientWidth) }
+      }"
+      {% if props.autoplay %}x-init="setInterval(() => { if (!$el.matches(':hover')) go(i + 1) }, {{ props.interval | default: 5 | times: 1000 }})"{% endif %}
+    >
+      <div class="deli-scroller flex overflow-x-auto" x-ref="track" @scroll.debounce.100ms="sync()">
+        {% for item in props.items %}
+          {% assign src = item.image | image_url %}
+          {% if src != blank %}
+            {% if item.href != blank %}<a class="block w-full shrink-0" href="{{ item.href }}">{% else %}<div class="w-full shrink-0">{% endif %}
+              <img
+                class="aspect-[16/7] w-full object-cover md:aspect-[16/5]"
+                src="{{ src }}"
+                alt="{{ item.alt | default: item.image.alt }}"
+                {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+              >
+            {% if item.href != blank %}</a>{% else %}</div>{% endif %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if slide_count > 1 %}
+        <button type="button" class="absolute left-3 top-1/2 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-ritual-bg/90 text-ritual-fg shadow hover:bg-ritual-highlight" @click="go(i - 1)" aria-label="{{ 'general.previous' | t }}">
+          <svg class="size-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="absolute right-3 top-1/2 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-ritual-bg/90 text-ritual-fg shadow hover:bg-ritual-highlight" @click="go(i + 1)" aria-label="{{ 'general.next' | t }}">
+          <svg class="size-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+          <template x-for="k in n" :key="k">
+            <button type="button" class="h-2 rounded-full transition-all" :class="i === k - 1 ? 'w-6 bg-ritual-highlight' : 'w-2 bg-ritual-bg/80'" @click="go(k - 1)" :aria-label="'Slide ' + k"></button>
+          </template>
+        </div>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="flex aspect-[16/7] flex-col items-start justify-center gap-4 rounded-box bg-ritual-primary px-8 text-ritual-on-primary md:aspect-[16/5] md:px-14">
+      <h1 class="sf-display max-w-xl font-heading font-bold">{{ props.fallbackHeading }}</h1>
+      {% if props.fallbackText != blank %}<p class="max-w-lg text-base md:text-lg">{{ props.fallbackText }}</p>{% endif %}
+      <a class="inline-flex h-11 items-center rounded-box bg-ritual-highlight px-6 text-sm font-semibold text-ritual-fg hover:brightness-95" href="/collections/all">{{ 'general.shop_now' | t }}</a>
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "label": "Hero slider",
+  "group": "page",
+  "icon": "gallery-horizontal",
+  "regions": ["pages.home", "pages.collection", "pages.page"],
+  "settings": {
+    "items": {
+      "kind": "image-slides",
+      "label": "Slides",
+      "hint": "Wide banners work best (about 16:5).",
+      "default": []
+    },
+    "autoplay": { "kind": "boolean", "label": "Autoplay", "default": true },
+    "interval": { "kind": "number", "label": "Seconds per slide", "min": 3, "max": 15, "default": 5 },
+    "fallbackHeading": { "kind": "text", "label": "Heading when no slides", "default": "Fresh groceries, delivered fast" },
+    "fallbackText": { "kind": "textarea", "label": "Text when no slides", "default": "Daily essentials, fresh produce and great deals — at your door in 60 minutes." }
+  }
+}
+{% endschema %}

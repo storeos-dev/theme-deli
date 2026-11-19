@@ -1,0 +1,53 @@
+{% comment %}
+  Trust strip: four cards with an outlined icon, title and short text.
+  Icon field accepts: truck, shield, headset, card, leaf, clock.
+{% endcomment %}
+<section class="page-width mx-auto px-4 py-6">
+  <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+    {% for item in props.items %}
+      <div class="flex flex-col items-center gap-2 rounded-box border border-ritual-border bg-ritual-bg px-3 py-4 text-center shadow-sm sm:flex-row sm:gap-4 sm:px-4 sm:text-left">
+        <span class="inline-flex size-10 shrink-0 sm:size-12 items-center justify-center rounded-full border-2 border-ritual-primary text-ritual-accent" aria-hidden="true">
+          {% case item.icon %}
+            {% when 'shield' %}
+              <svg class="size-6" viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {% when 'headset' %}
+              <svg class="size-6" viewBox="0 0 24 24" fill="none"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14v2a2 2 0 0 0 2 2h1v-6H6a2 2 0 0 0-2 2Zm16 0v2a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            {% when 'card' %}
+              <svg class="size-6" viewBox="0 0 24 24" fill="none"><rect x="3" y="5.5" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 10h18M7 15h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            {% when 'leaf' %}
+              <svg class="size-6" viewBox="0 0 24 24" fill="none"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14H5Zm0 0 7-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {% when 'clock' %}
+              <svg class="size-6" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            {% else %}
+              <svg class="size-6" viewBox="0 0 24 24" fill="none"><path d="M2.5 7h11v9h-11zM13.5 10h4l3 3v3h-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="6.5" cy="17.5" r="1.6" stroke="currentColor" stroke-width="1.6"/><circle cx="17" cy="17.5" r="1.6" stroke="currentColor" stroke-width="1.6"/></svg>
+          {% endcase %}
+        </span>
+        <div class="min-w-0">
+          {% if item.title != blank %}<p class="text-sm font-semibold leading-snug sm:text-[15px]">{{ item.title }}</p>{% endif %}
+          {% if item.text != blank %}<p class="mt-0.5 text-xs text-ritual-muted sm:text-sm">{{ item.text }}</p>{% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Feature strip",
+  "group": "page",
+  "icon": "badge-check",
+  "settings": {
+    "items": {
+      "kind": "icon-box-list",
+      "label": "Features",
+      "hint": "Icon: truck, shield, headset, card, leaf or clock.",
+      "default": [
+        { "icon": "truck", "title": "60 mins delivery", "text": "Free shipping over ৳1500" },
+        { "icon": "shield", "title": "Authorized products", "text": "Exchange within 30 days" },
+        { "icon": "headset", "title": "Customer support", "text": "8am to 10pm, every day" },
+        { "icon": "card", "title": "Flexible payments", "text": "Cash, cards and mobile wallets" }
+      ]
+    }
+  }
+}
+{% endschema %}

@@ -14,19 +14,29 @@
     "email": "Email",
     "subscribe": "Subscribe",
     "learn_more": "Learn more",
-    "video_placeholder": "Add a video or embed URL"
+    "video_placeholder": "Add a video or embed URL",
+    "sign_in": "Sign in / Sign up",
+    "previous": "Previous",
+    "next": "Next",
+    "shop_now": "Shop now",
+    "call_us": "Call us",
+    "follow_us": "Follow us"
   },
   "products": {
-    "add_to_cart": "Add to cart",
+    "add_to_cart": "Add to bag",
     "added": "Added",
     "buy_now": "Buy now",
     "sold_out": "Sold out",
     "quantity": "Quantity",
-    "specifications": "Specifications"
+    "specifications": "Specifications",
+    "off": "OFF",
+    "add_to_bag": "Add to Bag",
+    "in_bag": "in bag",
+    "choose_options": "Choose options"
   },
   "cart": {
-    "title": "Shopping cart",
-    "empty": "Your cart is empty.",
+    "title": "Your bag",
+    "empty": "Your bag is empty.",
     "subtotal": "Subtotal",
     "shipping_note": "Delivery charge will be calculated at checkout",
     "checkout": "Proceed to checkout",
@@ -34,7 +44,8 @@
     "remove": "Remove",
     "increase": "Increase quantity",
     "decrease": "Decrease quantity",
-    "free": "Free"
+    "free": "Free",
+    "items": "items"
   },
   "checkout": {
     "title": "Checkout",
@@ -84,7 +95,8 @@
     "sort_title": "Title",
     "previous": "Previous",
     "next": "Next",
-    "page": "Page"
+    "page": "Page",
+    "categories": "Categories"
   },
   "blog": {
     "back": "Blog",
@@ -92,9 +104,20 @@
   },
   "search": {
     "title": "Search",
-    "placeholder": "Search",
+    "placeholder": "Search your products",
     "submit": "Search",
     "results": "results",
-    "no_results": "No products match your search."
+    "no_results": "No products match your search.",
+    "searching": "Searching…",
+    "no_suggestions": "No products found for",
+    "products": "Products",
+    "see_all": "See all results for"
+  },
+  "not_found": {
+    "title": "We couldn’t find that page",
+    "body": "The product or page you’re looking for may have moved, sold out or never existed. Try a search, or keep shopping from the categories below.",
+    "home": "Back to home",
+    "shop_all": "Shop all products",
+    "browse": "Browse categories"
   }
 }

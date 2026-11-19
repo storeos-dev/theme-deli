@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {{ 'theme.css' | asset_url | stylesheet_tag }}
+    <link rel="icon" type="image/svg+xml" href="{{ 'favicon.svg' | asset_url }}">
 
     {{ content_for_header }}
   </head>
-  <body class="theme-ritual min-h-screen" id="storeos-shop-{{ shop.uid }}">
+  <body class="theme-deli min-h-screen" id="storeos-shop-{{ shop.uid }}">
     <script type="application/json" id="storeos-config">{"tenant":"{{ shop.uid }}","currency":"{{ shop.currency }}","apiBase":"","cdnBase":"https://cdn.storeos.dev"}</script>
     <a
       class="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:bg-ritual-bg focus:px-3 focus:py-2 focus:text-sm"
@@ -16,7 +17,7 @@
 
     {{ content_for_top }}
 
-    <main id="main">
+    <main id="main" class="container mx-auto">
       {{ content_for_layout }}
     </main>
 

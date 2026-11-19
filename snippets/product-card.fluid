@@ -1,23 +1,94 @@
-<a class="group flex flex-col gap-3 text-ritual-fg" href="{{ product.url }}">
-  <div class="relative aspect-[4/5] overflow-hidden bg-ritual-border/40">
-    {% if product.featured_image %}
-      <img
-        class="size-full object-cover transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
-        src="{{ product.featured_image | image_url }}"
-        alt="{{ product.featured_image.alt | default: product.title }}"
-        loading="lazy"
-      >
+{% comment %}
+  Deli product card — bordered card, discount tag, delivery note,
+  price in brand green and an "Add to Bag" pill with a qty stepper.
+{% endcomment %}
+{% assign card_image = product.featured_image | image_url %}
+{% assign has_discount = false %}
+{% if product.compare_at_price and product.compare_at_price > product.price %}
+  {% assign has_discount = true %}
+  {% assign saving = product.compare_at_price | minus: product.price %}
+{% endif %}
+
+<article class="group relative flex h-full flex-col rounded-box border border-ritual-border bg-ritual-bg p-3 transition hover:border-ritual-primary hover:shadow-md">
+  {% if has_discount %}
+    <span class="absolute left-2 top-2 z-10 flex flex-col items-center rounded-box bg-ritual-sale px-1.5 py-1 text-center text-[10px] font-semibold leading-none text-white">
+      <span>{{ saving | money }}</span>
+      <span class="mt-0.5">{{ 'products.off' | t }}</span>
+    </span>
+  {% endif %}
+  {% unless product.available %}
+    <span class="absolute right-2 top-2 z-10 rounded-box bg-ritual-fg px-2 py-1 text-[11px] font-medium text-ritual-bg">
+      {{ 'products.sold_out' | t }}
+    </span>
+  {% endunless %}
+
+  <a class="block" href="{{ product.url }}">
+    <div class="aspect-square overflow-hidden rounded-box bg-ritual-bg">
+      {% if card_image != blank %}
+        <img
+          class="size-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"
+          src="{{ card_image }}"
+          alt="{{ product.featured_image.alt | default: product.title }}"
+          loading="lazy"
+        >
+      {% else %}
+        <div class="size-full bg-ritual-soft"></div>
+      {% endif %}
+    </div>
+  </a>
+
+  <div class="mt-3 flex flex-1 flex-col items-center text-center">
+    {% if delivery_note != blank %}
+      <p class="text-xs italic text-ritual-muted">{{ delivery_note }}</p>
     {% endif %}
-    {% unless product.available %}
-      <span class="sf-caption absolute left-2 top-2 bg-ritual-bg px-2 py-1 uppercase tracking-wide">
-        {{ 'products.sold_out' | t }}
-      </span>
-    {% endunless %}
-  </div>
-  <div class="flex flex-col gap-1">
-    <h3 class="sf-subhead text-[15px] font-medium leading-snug tracking-normal normal-case">
-      {{ product.title }}
+    <h3 class="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5">
+      <a href="{{ product.url }}">{{ product.title }}</a>
     </h3>
-    {% render 'price', price: product.price, compare_at_price: product.compare_at_price %}
+    <div class="mt-2">
+      {% render 'price', price: product.price, compare_at_price: product.compare_at_price %}
+    </div>
+
+    <div class="mt-auto w-full pt-3">
+      {% if product.available and product.has_only_default_variant %}
+        <div
+          x-data="deliQuickAdd"
+          data-product-id="{{ product.id }}"
+          data-variant-id="{{ product.variants.first.id }}"
+          data-title="{{ product.title | escape }}"
+          data-image="{{ card_image }}"
+          data-unit-price="{{ product.price | default: 0 }}"
+        >
+          <button
+            type="button"
+            class="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-box bg-ritual-primary px-4 text-sm font-semibold text-ritual-on-primary transition hover:brightness-95"
+            x-show="qty === 0"
+            @click="add()"
+          >
+            <svg class="size-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            {{ 'products.add_to_bag' | t }}
+          </button>
+          <div
+            class="flex h-9 w-full items-center justify-between rounded-box bg-ritual-primary text-ritual-on-primary"
+            x-show="qty > 0"
+            x-cloak
+          >
+            <button type="button" class="inline-flex size-9 items-center justify-center text-lg font-semibold" @click="change(-1)" aria-label="{{ 'cart.decrease' | t }}">−</button>
+            <span class="text-sm font-semibold"><span x-text="qty"></span> {{ 'products.in_bag' | t }}</span>
+            <button type="button" class="inline-flex size-9 items-center justify-center text-lg font-semibold" @click="change(1)" aria-label="{{ 'cart.increase' | t }}">+</button>
+          </div>
+        </div>
+      {% elsif product.available %}
+        <a
+          class="inline-flex h-9 w-full items-center justify-center rounded-box bg-ritual-primary px-4 text-sm font-semibold text-ritual-on-primary transition hover:brightness-95"
+          href="{{ product.url }}"
+        >{{ 'products.choose_options' | t }}</a>
+      {% else %}
+        <span class="inline-flex h-9 w-full items-center justify-center rounded-box border border-ritual-border px-4 text-sm font-medium text-ritual-muted">
+          {{ 'products.sold_out' | t }}
+        </span>
+      {% endif %}
+    </div>
   </div>
-</a>
+</article>

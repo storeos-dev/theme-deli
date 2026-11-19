@@ -1,4 +1,4 @@
-{% assign field_class = 'w-full border border-ritual-border bg-ritual-bg px-3 py-2.5 text-sm text-ritual-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ritual-fg' %}
+{% assign field_class = 'w-full rounded-box border border-ritual-border bg-ritual-bg px-3 py-2.5 text-sm text-ritual-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ritual-fg' %}
 
 <section
   class="page-width mx-auto px-5 py-10 md:py-14"
@@ -35,7 +35,7 @@
   >
     <form class="space-y-6" novalidate @submit.prevent="submit()">
       <p
-        class="rounded-sm border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+        class="rounded-box border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
         x-show="error"
         x-text="error"
         x-cloak
@@ -226,7 +226,7 @@
               <div class="flex flex-wrap items-center gap-3 text-sm">
                 <button
                   type="button"
-                  class="bg-ritual-primary px-3 py-1.5 font-medium text-ritual-bg disabled:opacity-50"
+                  class="rounded-box bg-ritual-primary px-3 py-1.5 font-medium text-ritual-on-primary disabled:opacity-50"
                   @click="applyCoupon()"
                   :disabled="pending || !couponCode.trim()"
                 >{{ 'checkout.apply' | t }}</button>
@@ -268,7 +268,7 @@
       </fieldset>
 
       <button
-        class="inline-flex w-full items-center justify-center bg-ritual-primary px-5 py-3 text-sm font-medium text-ritual-bg transition-colors duration-200 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
+        class="rounded-box inline-flex w-full items-center justify-center bg-ritual-primary px-5 py-3 text-sm font-medium text-ritual-on-primary transition-colors duration-200 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
         type="submit"
         :disabled="pending"
       >
@@ -277,7 +277,7 @@
       </button>
     </form>
 
-    <aside class="border border-ritual-border p-5 lg:sticky lg:top-24 lg:self-start">
+    <aside class="rounded-box border border-ritual-border p-5 lg:sticky lg:top-24 lg:self-start">
       <h2 class="text-sm font-medium uppercase tracking-wide text-ritual-muted">{{ 'checkout.summary' | t }}</h2>
       <ul class="mt-4 divide-y divide-ritual-border">
         <template x-for="item in $store.cart.lineItems" :key="$store.cart.lineKey(item)">

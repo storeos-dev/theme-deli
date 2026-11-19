@@ -1,0 +1,48 @@
+{% comment %}
+  Category tiles: image cards with a yellow pill label (Shwapno-style).
+  Uses picked collections; falls back to every store collection.
+{% endcomment %}
+{% assign tiles = widget.data.collectionIds | default: collections %}
+
+<section class="page-width mx-auto px-4 py-6 md:py-8">
+  {% if props.heading != blank %}
+    <h2 class="deli-section-title mb-5 text-center">{{ props.heading }}</h2>
+  {% endif %}
+
+  <div class="deli-scroller -mx-4 flex gap-3 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0 lg:grid-cols-6">
+    {% for tile in tiles limit: props.limit %}
+      {% assign tile_src = tile.image | image_url %}
+      <a class="group relative block w-36 shrink-0 md:w-auto" href="{{ tile.url }}">
+        <div class="aspect-square overflow-hidden rounded-box bg-ritual-soft">
+          {% if tile_src != blank %}
+            <img class="size-full object-cover transition duration-300 group-hover:scale-105" src="{{ tile_src }}" alt="{{ tile.title }}" loading="lazy">
+          {% else %}
+            <div class="flex size-full items-center justify-center text-4xl font-bold text-ritual-primary">{{ tile.title | slice: 0 }}</div>
+          {% endif %}
+        </div>
+        <span class="absolute inset-x-3 bottom-2 truncate rounded-box bg-ritual-highlight px-3 py-1.5 text-center text-sm font-semibold text-ritual-fg shadow-sm">
+          {{ tile.title }}
+        </span>
+      </a>
+    {% else %}
+      <p class="text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Category tiles",
+  "group": "dynamic",
+  "icon": "layout-grid",
+  "settings": {
+    "heading": { "kind": "text", "label": "Heading", "default": "" },
+    "collectionIds": {
+      "kind": "collection-list",
+      "label": "Collections",
+      "hint": "Leave empty to show every collection."
+    },
+    "limit": { "kind": "number", "label": "Tiles to show", "min": 2, "max": 18, "default": 6 }
+  }
+}
+{% endschema %}

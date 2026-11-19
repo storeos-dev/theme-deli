@@ -1,0 +1,100 @@
+<section class="page-width mx-auto px-4 py-8 md:py-14" x-data="deliLogin">
+  <div class="mx-auto grid max-w-4xl overflow-hidden rounded-box border border-ritual-border bg-ritual-bg shadow-sm md:grid-cols-2">
+    <div class="relative overflow-hidden bg-ritual-soft p-8 md:p-10">
+      <div class="pointer-events-none absolute -bottom-16 -right-16 size-56 rounded-full bg-ritual-primary/25" aria-hidden="true"></div>
+      <img class="relative h-14 w-auto" src="{{ 'logo.svg' | asset_url }}" alt="{{ shop.name }}" width="77" height="56">
+      <h1 class="relative mt-6 font-heading text-2xl font-bold md:text-3xl">{{ props.heading }}</h1>
+      <p class="relative mt-2 text-ritual-muted">{{ props.text }}</p>
+      <ul class="relative mt-6 space-y-3 text-sm">
+        {% for perk in props.perks %}
+          <li class="flex items-center gap-3">
+            <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-ritual-bg text-ritual-accent" aria-hidden="true">
+              <svg class="size-4" viewBox="0 0 20 20" fill="none"><path d="m5 10.5 3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            {{ perk }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="p-8 md:p-10">
+      <h2 class="font-heading text-xl font-semibold" x-text="step === 'phone' ? '{{ 'account.sign_in' | t }}' : '{{ 'account.enter_code' | t }}'">{{ 'account.sign_in' | t }}</h2>
+      <p class="mt-1 text-sm text-ritual-muted" x-show="step === 'phone'">{{ 'account.sign_in_hint' | t }}</p>
+      <p class="mt-1 text-sm text-ritual-muted" x-show="step === 'otp'" x-text="notice" x-cloak></p>
+
+      <div class="mt-5 rounded-box border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert" x-show="error" x-text="error" x-cloak></div>
+
+      <form class="mt-5 space-y-4" x-show="step === 'phone'" @submit.prevent="sendCode()">
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium">{{ 'account.phone' | t }}</span>
+          <input
+            class="h-11 w-full rounded-box border border-ritual-border bg-ritual-bg px-3 text-base outline-none focus:border-ritual-primary focus:ring-2 focus:ring-ritual-primary/30"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            placeholder="01XXXXXXXXX"
+            x-model="phone"
+            required
+          >
+        </label>
+        <button class="inline-flex h-11 w-full items-center justify-center rounded-box bg-ritual-primary text-sm font-semibold text-ritual-on-primary hover:brightness-95 disabled:opacity-60" type="submit" :disabled="loading">
+          <span x-show="!loading">{{ 'account.send_code' | t }}</span>
+          <span x-show="loading" x-cloak>{{ 'account.sending' | t }}</span>
+        </button>
+      </form>
+
+      <form class="mt-5 space-y-4" x-show="step === 'otp'" x-cloak @submit.prevent="verify()">
+        <label class="block" x-show="isNew">
+          <span class="mb-1.5 block text-sm font-medium">{{ 'account.name' | t }}</span>
+          <input class="h-11 w-full rounded-box border border-ritual-border bg-ritual-bg px-3 text-base outline-none focus:border-ritual-primary focus:ring-2 focus:ring-ritual-primary/30" type="text" autocomplete="name" x-model="name">
+        </label>
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium">{{ 'account.code' | t }}</span>
+          <input
+            class="h-12 w-full rounded-box border border-ritual-border bg-ritual-bg px-3 text-center font-heading text-2xl tracking-[0.5em] outline-none focus:border-ritual-primary focus:ring-2 focus:ring-ritual-primary/30"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+            x-model="otp"
+            x-ref="otp"
+          >
+        </label>
+        <button class="inline-flex h-11 w-full items-center justify-center rounded-box bg-ritual-primary text-sm font-semibold text-ritual-on-primary hover:brightness-95 disabled:opacity-60" type="submit" :disabled="loading">
+          <span x-show="!loading">{{ 'account.verify' | t }}</span>
+          <span x-show="loading" x-cloak>{{ 'account.verifying' | t }}</span>
+        </button>
+        <div class="flex items-center justify-between text-sm">
+          <button type="button" class="text-ritual-muted hover:text-ritual-accent" @click="changeNumber()">{{ 'account.change_number' | t }}</button>
+          <button type="button" class="font-medium text-ritual-accent disabled:text-ritual-muted" :disabled="resendIn > 0 || loading" @click="sendCode()">
+            <span x-show="resendIn === 0">{{ 'account.resend' | t }}</span>
+            <span x-show="resendIn > 0" x-cloak>{{ 'account.resend_in' | t }} <span x-text="resendIn"></span>s</span>
+          </button>
+        </div>
+      </form>
+
+      <p class="mt-8 border-t border-ritual-border pt-5 text-sm text-ritual-muted">
+        {{ 'account.track_without' | t }}
+        <a class="font-semibold text-ritual-accent hover:underline" href="/track-order">{{ 'account.track' | t }}</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Sign in",
+  "group": "page",
+  "icon": "log-in",
+  "regions": ["pages.login"],
+  "settings": {
+    "heading": { "kind": "text", "default": "Welcome back" },
+    "text": { "kind": "textarea", "default": "Sign in with your phone number. We'll text you a code — no password needed." },
+    "perks": {
+      "kind": "string-list",
+      "label": "Perks",
+      "default": ["See all your orders in one place", "Track every delivery to your door", "Check out faster next time"]
+    }
+  }
+}
+{% endschema %}

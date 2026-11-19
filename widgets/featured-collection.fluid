@@ -1,28 +1,44 @@
 {% assign items = widget.data.collectionId.products | default: products %}
 {% assign collection_url = widget.data.collectionId.url | default: '/collections/all' %}
 
-<section class="page-width mx-auto px-5 py-12 md:py-16">
-  <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
-    {% if props.heading != blank %}
-      <h2 class="sf-heading">{{ props.heading }}</h2>
-    {% endif %}
-    {% if props.showViewAll %}
-      <a class="sf-caption uppercase tracking-wide text-ritual-muted hover:text-ritual-fg" href="{{ collection_url }}">
-        {% if props.viewAllLabel != blank %}
-          {{ props.viewAllLabel }}
-        {% else %}
-          {{ 'general.view_all' | t }}
-        {% endif %}
-      </a>
-    {% endif %}
-  </div>
+<section class="page-width mx-auto px-4 py-6 md:py-10">
+  <div class="{% if props.tinted %}rounded-box bg-ritual-soft px-3 py-6 md:px-6{% endif %}">
+    <div class="relative mb-5 flex items-center justify-center">
+      {% if props.heading != blank %}
+        <h2 class="deli-section-title text-center">{{ props.heading }}</h2>
+      {% endif %}
+      {% if props.showViewAll %}
+        <a class="absolute right-0 hidden text-sm font-semibold text-ritual-accent hover:underline sm:inline" href="{{ collection_url }}">
+          {{ props.viewAllLabel | default: 'View all' }} →
+        </a>
+      {% endif %}
+    </div>
 
-  <div class="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6">
-    {% for product in items limit: props.limit %}
-      {% render 'product-card', product: product %}
+    {% if props.layout == 'row' %}
+      <div class="deli-scroller -mx-1 flex gap-3 overflow-x-auto px-1 pb-1 md:gap-4">
+        {% for product in items limit: props.limit %}
+          <div class="w-44 shrink-0 sm:w-52 lg:w-[calc((100%-4rem)/5)]">
+            {% render 'product-card', product: product, delivery_note: props.deliveryNote %}
+          </div>
+        {% else %}
+          <p class="text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
+        {% endfor %}
+      </div>
     {% else %}
-      <p class="col-span-full text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
-    {% endfor %}
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-5">
+        {% for product in items limit: props.limit %}
+          {% render 'product-card', product: product, delivery_note: props.deliveryNote %}
+        {% else %}
+          <p class="col-span-full text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if props.showViewAll %}
+      <div class="mt-5 text-center sm:hidden">
+        <a class="text-sm font-semibold text-ritual-accent" href="{{ collection_url }}">{{ props.viewAllLabel | default: 'View all' }} →</a>
+      </div>
+    {% endif %}
   </div>
 </section>
 
@@ -32,7 +48,7 @@
   "group": "dynamic",
   "icon": "shopping-bag",
   "settings": {
-    "heading": { "kind": "text", "default": "New arrivals" },
+    "heading": { "kind": "text", "default": "Recommended for you" },
     "collectionId": {
       "kind": "collection",
       "label": "Collection",
@@ -44,8 +60,24 @@
       "min": 2,
       "max": 24,
       "step": 1,
-      "default": 8
+      "default": 10
     },
+    "layout": {
+      "kind": "select",
+      "label": "Layout",
+      "default": "grid",
+      "options": [
+        { "label": "Grid", "value": "grid" },
+        { "label": "Scrolling row", "value": "row" }
+      ]
+    },
+    "deliveryNote": {
+      "kind": "text",
+      "label": "Delivery note on cards",
+      "hint": "Leave empty to hide.",
+      "default": "Delivery 1-2 hours"
+    },
+    "tinted": { "kind": "boolean", "label": "Tinted background", "default": false, "panel": "style" },
     "showViewAll": { "kind": "boolean", "label": "Show view all", "default": true },
     "viewAllLabel": { "kind": "text", "label": "View all label", "default": "View all" }
   }

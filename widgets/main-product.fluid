@@ -32,7 +32,7 @@
 
   <div class="grid gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
     <div class="min-w-0">
-      <div class="aspect-square overflow-hidden bg-ritual-border/30">
+      <div class="rounded-box aspect-square overflow-hidden bg-ritual-border/30">
         {% if featured %}
           <img
             class="h-full w-full object-cover"
@@ -55,7 +55,7 @@
             <li class="shrink-0">
               <button
                 type="button"
-                class="block size-16 overflow-hidden border border-ritual-border bg-ritual-bg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ritual-fg"
+                class="rounded-box block size-16 overflow-hidden border border-ritual-border bg-ritual-bg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ritual-fg"
                 :class="image === '{{ image | image_url }}' ? 'border-ritual-fg' : 'hover:border-ritual-muted'"
                 @click="image = '{{ image | image_url }}'"
                 aria-label="{{ image.alt | default: product.title | escape }}"
@@ -101,7 +101,7 @@
             {{ product.options | map: 'name' | join: ' / ' }}
           </span>
           <select
-            class="w-full border border-ritual-border bg-ritual-bg px-3 py-2.5 text-sm text-ritual-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ritual-fg"
+            class="rounded-box w-full border border-ritual-border bg-ritual-bg px-3 py-2.5 text-sm text-ritual-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ritual-fg"
             data-variant-select
             @change="pickVariant($event.target)"
           >
@@ -126,7 +126,7 @@
       {% if props.showQuantity %}
         <div class="mt-6">
           <p class="sf-caption mb-2 uppercase tracking-wide text-ritual-muted">{{ 'products.quantity' | t }}</p>
-          <div class="inline-flex h-11 items-center border border-ritual-border bg-ritual-bg">
+          <div class="rounded-box inline-flex h-11 items-center border border-ritual-border bg-ritual-bg">
             <button
               type="button"
               class="inline-flex size-11 items-center justify-center text-ritual-muted disabled:opacity-40"
@@ -157,7 +157,7 @@
 
       <div class="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         <button
-          class="inline-flex h-11 items-center justify-center gap-2 border border-ritual-border bg-ritual-bg px-4 text-sm font-semibold text-ritual-fg transition-colors duration-200 enabled:hover:border-ritual-fg disabled:cursor-not-allowed disabled:opacity-40"
+          class="rounded-box inline-flex h-11 items-center justify-center gap-2 border border-ritual-border bg-ritual-bg px-4 text-sm font-semibold text-ritual-fg transition-colors duration-200 enabled:hover:border-ritual-fg disabled:cursor-not-allowed disabled:opacity-40"
           type="button"
           data-add-to-cart
           :disabled="!available"
@@ -171,7 +171,7 @@
         </button>
         {% if props.showBuyNow %}
           <button
-            class="inline-flex h-11 items-center justify-center gap-2 bg-ritual-primary px-4 text-sm font-semibold text-ritual-bg transition-colors duration-200 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            class="rounded-box inline-flex h-11 items-center justify-center gap-2 bg-ritual-primary px-4 text-sm font-semibold text-ritual-on-primary transition-colors duration-200 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             type="button"
             data-buy-now
             :disabled="!available"

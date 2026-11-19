@@ -25,7 +25,7 @@
     {% endif %}
     {% if props.buttonLabel != blank %}
       <a
-        class="mt-8 inline-flex items-center border border-ritual-bg bg-ritual-bg px-6 py-3 text-sm font-medium tracking-wide text-ritual-fg transition hover:bg-transparent hover:text-ritual-bg"
+        class="rounded-box mt-8 inline-flex items-center border border-ritual-bg bg-ritual-bg px-6 py-3 text-sm font-medium tracking-wide text-ritual-fg transition hover:bg-transparent hover:text-ritual-bg"
         href="{{ props.buttonLink | default: '/collections/all' }}"
       >
         {{ props.buttonLabel }}

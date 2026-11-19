@@ -1,5 +1,5 @@
 {
-  "name": "@storeos-themes/ritual",
+  "name": "@storeos-themes/deli",
   "private": true,
   "scripts": {
     "css": "bunx @tailwindcss/cli -i ./styles/input.css -o ./assets/theme.css",

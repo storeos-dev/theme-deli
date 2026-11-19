@@ -108,3 +108,64 @@ export function createProductForm() {
     },
   };
 }
+
+/**
+ * Deli product card "Add to Bag" — reads `data-*` on the root, then shows a
+ * − qty + stepper once the product is in the cart (Shwapno-style).
+ */
+export function createQuickAdd() {
+  return {
+    productId: "",
+    variantId: undefined,
+    title: "",
+    image: "",
+    unitPrice: 0,
+
+    init() {
+      const d = this.$el.dataset;
+      this.productId = d.productId || "";
+      this.variantId = d.variantId || undefined;
+      this.title = d.title || "";
+      this.image = d.image || "";
+      this.unitPrice = Number(d.unitPrice) || 0;
+    },
+
+    get line() {
+      return (this.$store.cart.lineItems || []).find(
+        (item) =>
+          item.productId === this.productId &&
+          (item.variantId || undefined) === this.variantId &&
+          !item.offerId,
+      );
+    },
+
+    get qty() {
+      return this.line?.quantity || 0;
+    },
+
+    add() {
+      this.$store.cart.addItem(
+        {
+          productId: this.productId,
+          variantId: this.variantId,
+          quantity: 1,
+          product: {
+            name: this.title,
+            unitPrice: this.unitPrice,
+            image: { external: this.image || undefined },
+          },
+        },
+        { openDrawer: false },
+      );
+    },
+
+    change(delta) {
+      this.$store.cart.adjustQuantity(
+        this.productId,
+        this.qty + delta,
+        this.variantId,
+        undefined,
+      );
+    },
+  };
+}

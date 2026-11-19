@@ -1,150 +1,178 @@
 <header
-  x-data="{ menuOpen: false, searchOpen: false }"
+  x-data="{ menuOpen: false, catOpen: false }"
   x-effect="document.body.classList.toggle('overflow-hidden', menuOpen && !$store.cart.open)"
-  @keydown.escape.window="menuOpen = false; searchOpen = false"
+  @keydown.escape.window="menuOpen = false; catOpen = false"
 >
-  <div class="page-width relative mx-auto flex items-center gap-3 px-5 py-4 md:gap-6">
-    <button
-      type="button"
-      class="inline-flex size-10 shrink-0 items-center justify-center rounded-sm text-ritual-fg md:hidden"
-      @click="menuOpen = true; searchOpen = false"
-      :aria-expanded="menuOpen.toString()"
-      aria-controls="ritual-mobile-menu"
-      aria-label="{{ 'general.menu' | t }}"
-    >
-      <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-        <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </button>
+  {%- comment -%} Tier 1: brand bar {%- endcomment -%}
+  <div class="bg-ritual-bg text-ritual-fg container mx-auto my-2">
+    <div class="page-width mx-auto flex items-center gap-3 px-4 py-2.5 md:grid md:grid-cols-[1fr_minmax(0,40rem)_1fr] md:gap-6">
+      <button
+        type="button"
+        class="inline-flex size-10 shrink-0 items-center justify-center rounded-box hover:bg-ritual-soft md:hidden"
+        @click="menuOpen = true"
+        :aria-expanded="menuOpen.toString()"
+        aria-controls="ritual-mobile-menu"
+        aria-label="{{ 'general.menu' | t }}"
+      >
+        <svg class="size-6" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+        </svg>
+      </button>
 
-    <a
-      class="sf-subhead absolute left-1/2 -translate-x-1/2 font-heading tracking-[0.12em] uppercase md:static md:left-auto md:translate-x-0 md:shrink-0"
-      href="/"
-    >
-      {% if shop.logo %}
-        <img class="h-9 w-auto" src="{{ shop.logo | image_url }}" alt="{{ shop.name }}">
-      {% else %}
-        {{ shop.name }}
-      {% endif %}
-    </a>
+      <a class="inline-flex shrink-0 items-center md:justify-self-start" href="/" aria-label="{{ shop.name }}">
+        {% if props.useStoreLogo and shop.logo %}
+          <img class="h-8 w-auto md:h-10" src="{{ shop.logo | image_url }}" alt="{{ shop.name }}">
+        {% else %}
+          <img class="h-10 w-auto md:h-12" src="{{ 'logo.svg' | asset_url }}" alt="{{ shop.name }}" width="56" height="41">
+        {% endif %}
+      </a>
 
-    <nav class="hidden min-w-0 flex-1 items-center gap-6 md:flex" aria-label="{{ 'general.main_nav' | t }}">
-      {% if props.links.size > 0 %}
-        {% for link in props.links %}
-          <a class="text-sm tracking-wide text-ritual-fg hover:text-ritual-muted" href="{{ link.href }}">{{ link.label }}</a>
-        {% endfor %}
-      {% else %}
-        <a class="text-sm tracking-wide text-ritual-fg hover:text-ritual-muted" href="/collections/all">{{ 'general.shop_all' | t }}</a>
-        {% for collection in collections limit: props.menuCollections %}
-          <a class="text-sm tracking-wide text-ritual-fg hover:text-ritual-muted" href="{{ collection.url }}">{{ collection.title }}</a>
-        {% endfor %}
-      {% endif %}
-    </nav>
-
-    <div class="ml-auto flex shrink-0 items-center gap-1">
       {% if props.showSearch %}
-        <button
-          type="button"
-          class="inline-flex size-10 items-center justify-center rounded-sm text-ritual-fg"
-          @click="searchOpen = !searchOpen; menuOpen = false; if (searchOpen) $nextTick(() => $refs.searchInput?.focus())"
-          :aria-expanded="searchOpen.toString()"
-          aria-controls="ritual-search"
-          aria-label="{{ 'search.title' | t }}"
-        >
-          <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <circle cx="8.5" cy="8.5" r="5.75" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </button>
+        <div class="hidden w-full min-w-0 md:block">
+          {% render 'search-box', id: 'deli-search-desktop', placeholder: props.searchPlaceholder %}
+        </div>
       {% endif %}
 
-      {% if props.showAccount %}
-        <a
-          class="hidden size-10 items-center justify-center rounded-sm text-ritual-fg sm:inline-flex"
-          href="/account"
-          aria-label="{{ 'general.account' | t }}"
-        >
-          <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <circle cx="10" cy="7" r="3.25" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M4 16.5c1.6-2.6 3.6-3.75 6-3.75s4.4 1.15 6 3.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </a>
-      {% endif %}
+      <div class="ml-auto flex shrink-0 items-center gap-2 md:justify-self-end">
+        {% if props.helpText != blank %}
+          <a class="hidden h-10 items-center gap-1.5 rounded-box px-2 text-sm font-medium hover:bg-ritual-soft hover:text-ritual-accent xl:inline-flex" href="{{ props.helpLink | default: '#' }}">
+            <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 13v-1a8 8 0 0 1 16 0v1M4 13v3a2 2 0 0 0 2 2h1v-6H6a2 2 0 0 0-2 2Zm16 0v3a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            {{ props.helpText }}
+          </a>
+        {% endif %}
 
-      {% if props.showCart %}
-        <button
-          type="button"
-          class="relative inline-flex size-10 items-center justify-center rounded-sm text-ritual-fg"
-          @click="searchOpen = false; menuOpen = false; $store.cart.setOpen(true)"
-          :aria-expanded="$store.cart.open.toString()"
-          aria-controls="ritual-cart-drawer"
-          aria-label="{{ 'general.cart' | t }}"
-        >
-          <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="M5 6.5h10l-.7 8.2a1.5 1.5 0 0 1-1.5 1.3H7.2a1.5 1.5 0 0 1-1.5-1.3L5 6.5Z" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M7.5 6.5V5a2.5 2.5 0 0 1 5 0v1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <span
-            class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ritual-primary px-1 text-[10px] font-medium text-ritual-bg"
-            x-show="$store.cart.totalItems > 0"
-            x-text="$store.cart.totalItems"
+        {% if props.showAccount %}
+          <a
+            class="inline-flex h-10 items-center gap-2 rounded-box border border-ritual-border px-2.5 text-sm font-medium hover:border-ritual-primary hover:bg-ritual-soft sm:px-3"
+            href="/account"
+            aria-label="{{ 'general.account' | t }}"
+          >
+            <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <circle cx="10" cy="6.5" r="3.5"/>
+              <path d="M3.5 17c.8-3.4 3.4-5.25 6.5-5.25s5.7 1.85 6.5 5.25H3.5Z"/>
+            </svg>
+            <span class="hidden sm:inline">{{ 'general.sign_in' | t }}</span>
+          </a>
+        {% endif %}
+
+        {% if props.showCart %}
+          <button
+            type="button"
+            class="relative inline-flex size-10 items-center justify-center rounded-box hover:bg-ritual-soft md:hidden"
+            @click="menuOpen = false; $store.cart.setOpen(true)"
+            aria-controls="ritual-cart-drawer"
+            aria-label="{{ 'general.cart' | t }}"
+          >
+            <svg class="size-6" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M5 6.5h10l-.7 8.2a1.5 1.5 0 0 1-1.5 1.3H7.2a1.5 1.5 0 0 1-1.5-1.3L5 6.5Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M7.5 6.5V5a2.5 2.5 0 0 1 5 0v1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span
+              class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ritual-highlight px-1 text-[10px] font-bold text-ritual-fg"
+              x-show="$store.cart.totalItems > 0"
+              x-text="$store.cart.totalItems"
+              x-cloak
+            ></span>
+          </button>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if props.showSearch %}
+      <div class="px-4 pb-3 md:hidden">
+        {% render 'search-box', id: 'deli-search-mobile', placeholder: props.searchPlaceholder %}
+      </div>
+    {% endif %}
+  </div>
+
+  {%- comment -%} Tier 2: category + nav row {%- endcomment -%}
+  <div class="hidden bg-ritual-primary text-ritual-on-primary md:block">
+    <div class="page-width relative mx-auto flex items-center gap-6 px-4 container mx-auto">
+      {% if props.showCategories %}
+        <div class="relative py-1.5" @click.outside="catOpen = false">
+          <button
+            type="button"
+            class="inline-flex h-9 items-center gap-2 rounded-box px-3 text-sm font-semibold uppercase tracking-wide transition"
+            :class="catOpen ? 'bg-ritual-on-primary/15' : 'hover:bg-ritual-on-primary/10'"
+            @click="catOpen = !catOpen"
+            :aria-expanded="catOpen.toString()"
+            aria-controls="deli-category-menu"
+          >
+            <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M3 5h14M3 10h14M3 15h9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            </svg>
+            {{ props.categoriesLabel | default: 'Shop by category' }}
+            <svg class="size-4 transition-transform" :class="catOpen && 'rotate-180'" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <div
+            id="deli-category-menu"
+            class="absolute left-0 top-full z-40 mt-1 w-72 overflow-hidden rounded-box border border-ritual-border bg-ritual-bg shadow-xl"
+            x-show="catOpen"
             x-cloak
-          ></span>
-        </button>
+            x-transition:enter="transition ease-out duration-150"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-100"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+          >
+            <p class="border-b border-ritual-border bg-ritual-soft px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-ritual-muted">{{ 'collections.categories' | t }}</p>
+            <ul class="max-h-[60vh] overflow-y-auto p-1.5">
+              <li>
+                <a class="group flex items-center gap-3 rounded-box px-3 py-2.5 text-sm font-semibold hover:bg-ritual-soft hover:text-ritual-accent" href="/collections/all">
+                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-box bg-ritual-primary text-ritual-on-primary">
+                    <svg class="size-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.5 3.5h5v5h-5zM11.5 3.5h5v5h-5zM3.5 11.5h5v5h-5zM11.5 11.5h5v5h-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="flex-1">{{ 'collections.all_products' | t }}</span>
+                  <svg class="size-4 text-ritual-muted transition group-hover:translate-x-0.5 group-hover:text-ritual-accent" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+              </li>
+              {% for collection in collections %}
+                {% assign cat_img = collection.image | image_url %}
+                <li>
+                  <a class="group flex items-center gap-3 rounded-box px-3 py-2.5 text-sm hover:bg-ritual-soft hover:text-ritual-accent" href="{{ collection.url }}">
+                    <span class="inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-box bg-ritual-soft text-xs font-bold text-ritual-accent">
+                      {% if cat_img != blank %}
+                        <img class="size-full object-cover" src="{{ cat_img }}" alt="" loading="lazy">
+                      {% else %}
+                        {{ collection.title | slice: 0 }}
+                      {% endif %}
+                    </span>
+                    <span class="flex-1">{{ collection.title }}</span>
+                    <svg class="size-4 text-ritual-muted transition group-hover:translate-x-0.5 group-hover:text-ritual-accent" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
       {% endif %}
+
+      <nav class="deli-scroller flex min-w-0 flex-1 items-center justify-end gap-7 overflow-x-auto" aria-label="{{ 'general.main_nav' | t }}">
+        {% if props.links.size > 0 %}
+          {% for link in props.links %}
+            <a class="whitespace-nowrap py-3 text-sm font-medium uppercase tracking-wide underline-offset-4 decoration-2 hover:underline" href="{{ link.href }}">{{ link.label }}</a>
+          {% endfor %}
+        {% else %}
+          {% for collection in collections limit: props.menuCollections %}
+            <a class="whitespace-nowrap py-3 text-sm font-medium uppercase tracking-wide underline-offset-4 decoration-2 hover:underline" href="{{ collection.url }}">{{ collection.title }}</a>
+          {% endfor %}
+        {% endif %}
+      </nav>
     </div>
   </div>
 
-  {% if props.showSearch %}
-    <div
-      id="ritual-search"
-      class="border-t border-ritual-border bg-ritual-bg"
-      x-show="searchOpen"
-      x-cloak
-      x-transition
-    >
-      <form class="page-width mx-auto flex items-center gap-3 px-5 py-4" action="/search" method="get" role="search">
-        <label class="sr-only" for="ritual-search-input">{{ 'search.title' | t }}</label>
-        <input
-          id="ritual-search-input"
-          class="min-w-0 flex-1 border-0 bg-transparent text-base text-ritual-fg outline-none placeholder:text-ritual-muted"
-          type="search"
-          name="q"
-          placeholder="{{ 'search.placeholder' | t }}"
-          autocomplete="off"
-          x-ref="searchInput"
-        >
-        <button class="text-sm font-medium tracking-wide" type="submit">{{ 'search.submit' | t }}</button>
-        <button
-          class="inline-flex size-10 items-center justify-center text-ritual-muted"
-          type="button"
-          @click="searchOpen = false"
-          aria-label="{{ 'general.close' | t }}"
-        >
-          <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </form>
-    </div>
-  {% endif %}
-
-  <div
-    id="ritual-mobile-menu"
-    class="fixed inset-0 z-40 md:hidden"
-    x-show="menuOpen"
-    x-cloak
-  >
-    <button
-      type="button"
-      class="absolute inset-0 bg-black/30"
-      @click="menuOpen = false"
-      aria-label="{{ 'general.close' | t }}"
-    ></button>
+  {%- comment -%} Mobile drawer {%- endcomment -%}
+  <div id="ritual-mobile-menu" class="fixed inset-0 z-40 md:hidden" x-show="menuOpen" x-cloak>
+    <button type="button" class="absolute inset-0 bg-black/40" @click="menuOpen = false" aria-label="{{ 'general.close' | t }}"></button>
     <nav
-      class="absolute inset-y-0 left-0 flex w-[min(100%,20rem)] flex-col gap-1 overflow-y-auto bg-ritual-bg p-6 shadow-xl"
+      class="absolute inset-y-0 left-0 flex w-[min(100%,20rem)] flex-col overflow-y-auto bg-ritual-bg shadow-xl"
       aria-label="{{ 'general.main_nav' | t }}"
-      @click.outside="menuOpen = false"
       x-show="menuOpen"
       x-transition:enter="transition ease-out duration-200"
       x-transition:enter-start="-translate-x-full"
@@ -153,33 +181,46 @@
       x-transition:leave-start="translate-x-0"
       x-transition:leave-end="-translate-x-full"
     >
-      <div class="mb-4 flex items-center justify-between">
-        <span class="text-sm font-medium tracking-wide uppercase">{{ 'general.menu' | t }}</span>
-        <button
-          type="button"
-          class="inline-flex size-10 items-center justify-center text-ritual-muted"
-          @click="menuOpen = false"
-          aria-label="{{ 'general.close' | t }}"
-        >
+      <div class="flex items-center justify-between bg-ritual-primary px-5 py-4 text-ritual-on-primary">
+        <span class="text-sm font-semibold uppercase tracking-wide">{{ props.categoriesLabel | default: 'Shop by category' }}</span>
+        <button type="button" class="inline-flex size-9 items-center justify-center rounded-box hover:bg-ritual-on-primary/10" @click="menuOpen = false" aria-label="{{ 'general.close' | t }}">
           <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
           </svg>
         </button>
       </div>
-      {% if props.links.size > 0 %}
+      <div class="flex flex-col p-2">
         {% for link in props.links %}
-          <a class="border-b border-ritual-border py-3 text-base" href="{{ link.href }}">{{ link.label }}</a>
+          <a class="rounded-box px-3 py-3 text-sm font-semibold hover:bg-ritual-soft" href="{{ link.href }}">{{ link.label }}</a>
         {% endfor %}
-      {% else %}
-        <a class="border-b border-ritual-border py-3 text-base" href="/collections/all">{{ 'general.shop_all' | t }}</a>
-        {% for collection in collections limit: props.menuCollections %}
-          <a class="border-b border-ritual-border py-3 text-base" href="{{ collection.url }}">{{ collection.title }}</a>
+        <p class="mt-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-ritual-muted">{{ 'collections.categories' | t }}</p>
+        <a class="rounded-box px-3 py-3 text-sm hover:bg-ritual-soft" href="/collections/all">{{ 'collections.all_products' | t }}</a>
+        {% for collection in collections %}
+          <a class="rounded-box px-3 py-3 text-sm hover:bg-ritual-soft" href="{{ collection.url }}">{{ collection.title }}</a>
         {% endfor %}
-      {% endif %}
+      </div>
     </nav>
   </div>
 
   {% if props.showCart %}
+    {%- comment -%} Floating side cart (desktop) {%- endcomment -%}
+    <button
+      type="button"
+      class="fixed right-0 top-1/2 z-30 hidden w-20 -translate-y-1/2 flex-col items-center overflow-hidden rounded-l-box shadow-lg md:flex"
+      @click="$store.cart.setOpen(true)"
+      aria-controls="ritual-cart-drawer"
+      aria-label="{{ 'general.cart' | t }}"
+    >
+      <span class="flex w-full flex-col items-center gap-1 bg-ritual-primary px-2 py-2.5 text-ritual-on-primary">
+        <svg class="size-6" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M5 6.5h10l-.7 8.2a1.5 1.5 0 0 1-1.5 1.3H7.2a1.5 1.5 0 0 1-1.5-1.3L5 6.5Z" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7.5 6.5V5a2.5 2.5 0 0 1 5 0v1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="text-xs font-semibold"><span x-text="$store.cart.totalItems">0</span> {{ 'cart.items' | t }}</span>
+      </span>
+      <span class="w-full bg-ritual-fg px-2 py-1.5 text-center text-xs font-semibold text-ritual-bg" x-text="$store.cart.formatMoney($store.cart.subTotalAmount)"></span>
+    </button>
+
     <div id="ritual-cart-drawer">
       {% render 'cart-drawer' %}
     </div>
@@ -193,11 +234,22 @@
   "icon": "panel-top",
   "regions": ["chrome.top"],
   "settings": {
+    "useStoreLogo": {
+      "kind": "boolean",
+      "label": "Use store logo",
+      "hint": "Off shows the deli logo from the theme. On uses the logo from your store settings.",
+      "default": false
+    },
+    "searchPlaceholder": { "kind": "text", "label": "Search placeholder", "default": "Search your products" },
+    "helpText": { "kind": "text", "label": "Help line text", "hint": "Leave empty to hide.", "default": "Help line" },
+    "helpLink": { "kind": "link", "label": "Help line link", "default": "/pages/contact" },
+    "showCategories": { "kind": "boolean", "label": "Show category menu", "default": true },
+    "categoriesLabel": { "kind": "text", "label": "Category menu label", "default": "Shop by category" },
     "links": {
       "kind": "link-list",
       "label": "Navigation",
       "default": [
-        { "label": "Shop all", "href": "/collections/all" }
+        { "label": "Great deals", "href": "/collections/all" }
       ]
     },
     "menuCollections": {

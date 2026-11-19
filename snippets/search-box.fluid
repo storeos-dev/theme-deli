@@ -1,0 +1,105 @@
+{% comment %}
+  Header search with live suggestions.
+  Pass: id (unique input id), placeholder.
+{% endcomment %}
+<form
+  class="relative flex w-full"
+  action="/search"
+  method="get"
+  role="search"
+  x-data="deliSearch"
+  data-initial="{{ request.q | escape }}"
+  @submit="submit($event)"
+  @click.outside="close()"
+  @keydown.escape="close(); $refs.input.blur()"
+>
+  <label class="sr-only" for="{{ id }}">{{ 'search.title' | t }}</label>
+  <input
+    id="{{ id }}"
+    class="h-11 min-w-0 flex-1 rounded-l-box border-2 border-r-0 border-ritual-primary bg-ritual-bg px-4 text-sm text-ritual-fg outline-none placeholder:text-ritual-muted focus:border-ritual-accent"
+    type="search"
+    name="q"
+    placeholder="{{ placeholder }}"
+    autocomplete="off"
+    role="combobox"
+    aria-autocomplete="list"
+    aria-controls="{{ id }}-list"
+    :aria-expanded="showPanel.toString()"
+    x-ref="input"
+    x-model="q"
+    @input="onInput()"
+    @focus="open = true"
+    @keydown.arrow-down.prevent="move(1)"
+    @keydown.arrow-up.prevent="move(-1)"
+  >
+  <button
+    class="inline-flex h-11 w-14 shrink-0 items-center justify-center rounded-r-box bg-ritual-primary text-ritual-on-primary hover:brightness-95"
+    type="submit"
+    aria-label="{{ 'search.submit' | t }}"
+  >
+    <svg class="size-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="8.5" cy="8.5" r="5.75" stroke="currentColor" stroke-width="2"/>
+      <path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <div
+    id="{{ id }}-list"
+    class="absolute inset-x-0 top-full z-50 mt-2 overflow-hidden rounded-box border border-ritual-border bg-ritual-bg text-ritual-fg shadow-xl"
+    role="listbox"
+    x-show="showPanel"
+    x-cloak
+    x-transition.opacity.duration.150ms
+  >
+    <div class="flex items-center gap-2 px-4 py-3 text-sm text-ritual-muted" x-show="loading && results.length === 0">
+      <svg class="size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25"/>
+        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      {{ 'search.searching' | t }}
+    </div>
+
+    <p class="px-4 py-3 text-sm text-ritual-muted" x-show="!loading && results.length === 0">
+      {{ 'search.no_suggestions' | t }} “<span class="font-medium text-ritual-fg" x-text="q.trim()"></span>”
+    </p>
+
+    <template x-if="results.length > 0">
+      <div>
+        <p class="border-b border-ritual-border px-4 py-2 text-xs font-semibold uppercase tracking-wide text-ritual-muted">{{ 'search.products' | t }}</p>
+        <ul class="max-h-[60vh] overflow-y-auto py-1" :class="loading && 'opacity-60'">
+          <template x-for="(item, index) in results" :key="item.id">
+            <li role="option" :aria-selected="(active === index).toString()">
+              <a
+                class="flex items-center gap-3 px-4 py-2"
+                :class="active === index ? 'bg-ritual-soft' : 'hover:bg-ritual-soft'"
+                :href="item.url"
+                @mouseenter="active = index"
+              >
+                <span class="size-12 shrink-0 overflow-hidden rounded-box border border-ritual-border bg-ritual-bg">
+                  <img class="size-full object-contain" :src="item.image" alt="" loading="lazy" x-show="item.image">
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="line-clamp-1 text-sm font-medium" x-text="item.title"></span>
+                  <span class="text-sm font-semibold text-ritual-accent" x-text="money(item.price)"></span>
+                  <span class="ml-1 text-xs text-ritual-muted" x-show="!item.inStock">· {{ 'products.sold_out' | t }}</span>
+                </span>
+                <svg class="size-4 shrink-0 text-ritual-muted" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </li>
+          </template>
+        </ul>
+      </div>
+    </template>
+
+    <a
+      class="flex items-center justify-between border-t border-ritual-border px-4 py-3 text-sm font-semibold text-ritual-accent"
+      :class="active === results.length ? 'bg-ritual-soft' : 'hover:bg-ritual-soft'"
+      :href="searchUrl"
+      @mouseenter="active = results.length"
+      x-show="results.length > 0"
+    >
+      <span>{{ 'search.see_all' | t }} “<span x-text="q.trim()"></span>”<span class="font-normal text-ritual-muted" x-show="total > 0"> (<span x-text="total"></span>)</span></span>
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</form>

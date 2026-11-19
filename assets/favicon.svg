@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="627 192 310 310">
+  <style>
+    .deli-handle { stroke: #33562b; }
+    @media (prefers-color-scheme: dark) {
+      /* keep the handle visible on dark browser tabs */
+      .deli-handle { stroke: #b5d98a; }
+    }
+  </style>
+  <defs>
+    <mask id="deli-icon-veins" maskUnits="userSpaceOnUse" x="627" y="192" width="310" height="310">
+      <rect x="627" y="192" width="310" height="310" fill="#fff"/>
+      <path d="M676 390C700 408 718 432 731 462" fill="none" stroke="#000" stroke-width="9" stroke-linecap="round"/>
+      <path d="M860 368C820 392 790 425 772 466" fill="none" stroke="#000" stroke-width="9" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <!-- bag handle -->
+  <path class="deli-handle" d="M677 330A89 89 0 0 1 851 311" fill="none" stroke-width="24"/>
+  <!-- leaves -->
+  <g fill="#7ba445" mask="url(#deli-icon-veins)">
+    <path d="M632 352C690 357 735 372 742 420C744 436 742 450 739 462C690 466 660 452 648 418C641 398 636 375 632 352Z"/>
+    <path d="M932 312C918 370 902 418 870 442C842 463 808 468 775 467C756 448 748 420 752 396C760 352 800 328 850 320C878 316 905 314 932 312Z"/>
+  </g>
+</svg>

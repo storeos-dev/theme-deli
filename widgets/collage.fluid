@@ -9,7 +9,7 @@
         {% assign src = item.image | image_url %}
         {% if src != blank %}
           {% if item.href != blank %}
-            <a class="group relative block aspect-square overflow-hidden bg-ritual-border/40 {% if forloop.first %}md:col-span-2 md:row-span-2 md:aspect-auto md:min-h-full{% endif %}" href="{{ item.href }}">
+            <a class="rounded-box group relative block aspect-square overflow-hidden bg-ritual-border/40 {% if forloop.first %}md:col-span-2 md:row-span-2 md:aspect-auto md:min-h-full{% endif %}" href="{{ item.href }}">
               <img
                 class="size-full object-cover transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
                 src="{{ src }}"
@@ -18,7 +18,7 @@
               >
             </a>
           {% else %}
-            <div class="relative aspect-square overflow-hidden bg-ritual-border/40 {% if forloop.first %}md:col-span-2 md:row-span-2 md:aspect-auto md:min-h-full{% endif %}">
+            <div class="rounded-box relative aspect-square overflow-hidden bg-ritual-border/40 {% if forloop.first %}md:col-span-2 md:row-span-2 md:aspect-auto md:min-h-full{% endif %}">
               <img
                 class="size-full object-cover"
                 src="{{ src }}"

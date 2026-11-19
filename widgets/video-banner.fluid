@@ -35,7 +35,7 @@
 {% endcase %}
 
 <section class="page-width mx-auto px-5 py-12 md:py-16">
-  <div class="relative w-full overflow-hidden bg-ritual-fg {{ ratio_class }}">
+  <div class="rounded-box relative w-full overflow-hidden bg-ritual-fg {{ ratio_class }}">
     {% if provider == 'youtube' and yt_id != blank %}
       <img
         class="absolute inset-0 size-full object-cover opacity-40"

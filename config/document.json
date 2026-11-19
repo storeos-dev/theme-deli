@@ -4,30 +4,34 @@
   "prerender": "moderate",
   "globalSetting": {
     "colors": {
-      "primary": "#121212",
+      "primary": "#91C846",
+      "onPrimary": "#1A2E05",
+      "accent": "#4D7C0F",
+      "highlight": "#FFD43B",
       "background": "#ffffff",
-      "text": "#121212",
-      "muted": "#6b6b6b",
-      "border": "#e5e5e5",
-      "accent": "#121212",
-      "page": "#ffffff"
+      "page": "#ffffff",
+      "soft": "#F3F6EE",
+      "text": "#1F2937",
+      "muted": "#6B7280",
+      "border": "#E5E7EB",
+      "sale": "#E8590C"
     },
     "fonts": {
-      "heading": "Assistant",
-      "body": "Assistant"
+      "heading": "Rubik",
+      "body": "Rubik"
     },
     "typography": {
       "heading": {
-        "family": "Assistant",
+        "family": "Rubik",
         "weight": "600"
       },
       "body": {
-        "family": "Assistant",
-        "size": "16px"
+        "family": "Rubik",
+        "size": "15px"
       },
       "caption": {
         "size": "13px",
-        "letterSpacing": "0.02em"
+        "letterSpacing": "0.01em"
       }
     },
     "siteStyle": {
@@ -44,8 +48,7 @@
       {
         "type": "announcement-bar",
         "props": {
-          "backgroundColor": "var(--sf-primary)",
-          "color": "var(--sf-background)"
+          "text": "Free delivery on orders over ৳1500 · Delivered in 60 minutes"
         }
       },
       {
@@ -53,11 +56,15 @@
         "props": {
           "links": [
             {
-              "label": "Home",
-              "href": "/"
+              "label": "Great deals",
+              "href": "/collections/all"
             },
             {
-              "label": "Shop all",
+              "label": "Fresh produce",
+              "href": "/collections/all"
+            },
+            {
+              "label": "Daily essentials",
               "href": "/collections/all"
             }
           ]
@@ -69,69 +76,53 @@
   "pages": {
     "home": [
       {
-        "type": "image-banner",
+        "type": "hero-slider",
         "props": {
-          "contentAlign": "bottom-left",
-          "image": {
-            "fileAssetId": "6aec0938ee9db4c06a93885a",
-            "key": "demo-grocery/unlistedFiles/charlotte-karlsen-DAih2b5MFcA-unsplash-d9ce9dc4-af9d-469c-979b-ebdf36f93713.jpg",
-            "provider": "S3",
-            "alt": null
-          },
-          "contentAlignTablet": "bottom-left",
-          "contentAlignDesktop": "bottom-left"
-        }
-      },
-      "featured-collection",
-      "multicolumn",
-      "rich-text",
-      {
-        "type": "collage",
-        "props": {
-          "heading": "In the studio",
           "items": [
             {
               "image": {
-                "fileAssetId": "6aeac4334146af094f6a34dd",
-                "key": "demo-grocery/seed/khichuri-mixed-by-chinigura-rice-b8465376-0c30-4012-896d-276663c5a08a.jpg",
+                "fileAssetId": "6aec0938ee9db4c06a93885a",
+                "key": "demo-grocery/unlistedFiles/charlotte-karlsen-DAih2b5MFcA-unsplash-d9ce9dc4-af9d-469c-979b-ebdf36f93713.jpg",
                 "provider": "S3",
-                "external": null,
-                "mimeType": null,
-                "alt": "khichuri mixed by chinigura rice"
+                "alt": null
               },
-              "alt": "",
-              "href": ""
-            },
-            {
-              "image": {
-                "fileAssetId": "6aeac43e4146af094f6a35df",
-                "key": "demo-grocery/seed/dried-chingri-fish-bce9797b-230b-4502-b89e-649ec48d794f.jpg",
-                "provider": "S3",
-                "external": null,
-                "mimeType": null,
-                "alt": "dried chingri fish"
-              },
-              "alt": "",
-              "href": ""
-            },
-            {
-              "image": {
-                "fileAssetId": "6aeac4434146af094f6a3615",
-                "key": "demo-grocery/seed/borboti-alu-mixed-fcd91a80-b3e4-40b8-ae23-7ccff84456e9.jpg",
-                "provider": "S3",
-                "external": null,
-                "mimeType": null,
-                "alt": "borboti alu mixed"
-              },
-              "alt": "",
-              "href": ""
+              "alt": "Fresh groceries",
+              "href": "/collections/all"
             }
           ]
+        }
+      },
+      "category-tiles",
+      "feature-strip",
+      {
+        "type": "featured-collection",
+        "props": {
+          "heading": "Recommended for you",
+          "layout": "row"
+        }
+      },
+      "promo-banner",
+      {
+        "type": "featured-collection",
+        "props": {
+          "heading": "Daily essentials",
+          "tinted": true,
+          "limit": 10
         }
       }
     ],
     "collection": ["main-collection"],
-    "product": ["main-product", "product-grid"],
+    "product": [
+      "main-product",
+      {
+        "type": "product-grid",
+        "props": {
+          "heading": "You may also like",
+          "limit": 5,
+          "columns": 4
+        }
+      }
+    ],
     "search": ["main-search"],
     "checkout": ["main-checkout"],
     "order-confirmation": ["main-order-confirmation"]

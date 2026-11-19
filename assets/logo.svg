@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="430 225 670 490" role="img" aria-labelledby="deli-logo-title">
+  <title id="deli-logo-title">deli</title>
+  <defs>
+    <mask id="deli-leaf-veins" maskUnits="userSpaceOnUse" x="430" y="225" width="670" height="490">
+      <rect x="430" y="225" width="670" height="490" fill="#fff"/>
+      <path d="M676 390C700 408 718 432 731 462" fill="none" stroke="#000" stroke-width="7" stroke-linecap="round"/>
+      <path d="M860 368C820 392 790 425 772 466" fill="none" stroke="#000" stroke-width="7" stroke-linecap="round"/>
+    </mask>
+  </defs>
+
+  <!-- bag handle -->
+  <path d="M677 330A89 89 0 0 1 851 311" fill="none" stroke="#33562b" stroke-width="20"/>
+
+  <!-- leaves -->
+  <g fill="#7ba445" mask="url(#deli-leaf-veins)">
+    <path d="M632 352C690 357 735 372 742 420C744 436 742 450 739 462C690 466 660 452 648 418C641 398 636 375 632 352Z"/>
+    <path d="M932 312C918 370 902 418 870 442C842 463 808 468 775 467C756 448 748 420 752 396C760 352 800 328 850 320C878 316 905 314 932 312Z"/>
+  </g>
+
+  <g fill="#33562b">
+    <!-- d -->
+    <!-- bowl: right side stops at the stem so nothing pokes out past it -->
+    <path fill-rule="evenodd" d="M543 520C574 520 601 533 618 554V682C601 690 573 702 543 702C490 702 448 661 448 611C448 561 490 520 543 520ZM546 557C518 557 497 581 497 609.5C497 638 518 662 546 662C574 662 595 638 595 609.5C595 581 574 557 546 557Z"/>
+    <!-- stem with foot -->
+    <path d="M595 459A22 22 0 0 1 617 437H618A22 22 0 0 1 640 459V646Q640 660 652 660A15 15 0 0 1 667 675V680A22 22 0 0 1 645 702H636Q608 702 597 672L595 560Z"/>
+    <!-- e -->
+    <path fill-rule="evenodd" d="M878 600C878 552 836 518 783 518C728 518 685 560 685 610C685 662 728 702 785 702C818 702 845 690 864 672A18 18 0 0 0 840 645C826 658 810 665 789 665C760 665 739 648 734 623H862A16 16 0 0 0 878 607ZM734 592C740 568 760 552 783 552C806 552 827 568 833 592Z"/>
+    <!-- l -->
+    <path d="M918 459A22 22 0 0 1 940 437H945A22 22 0 0 1 967 459V646Q967 660 979 660A16 16 0 0 1 996 676V680A22 22 0 0 1 974 702H962Q918 702 918 655Z"/>
+    <!-- i -->
+    <rect x="1028" y="532" width="47" height="170" rx="22"/>
+    <circle cx="1050" cy="485" r="27"/>
+  </g>
+</svg>

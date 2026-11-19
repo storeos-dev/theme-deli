@@ -1,0 +1,46 @@
+{% comment %}
+  Full-width rounded-box promo banner (e.g. "Mega deals"). Image fills the card;
+  with no image it shows a green panel with heading, text and button.
+{% endcomment %}
+{% assign promo_src = props.image | image_url %}
+
+<section class="page-width mx-auto px-4 py-6 md:py-8">
+  {% if promo_src != blank %}
+    {% if props.buttonLink != blank %}<a class="block overflow-hidden rounded-box" href="{{ props.buttonLink }}">{% else %}<div class="overflow-hidden rounded-box">{% endif %}
+      <img class="w-full object-cover transition duration-300 hover:scale-[1.01]" src="{{ promo_src }}" alt="{{ props.heading }}" loading="lazy">
+    {% if props.buttonLink != blank %}</a>{% else %}</div>{% endif %}
+  {% else %}
+    <div class="relative overflow-hidden rounded-box bg-ritual-soft px-6 py-10 md:px-14 md:py-14">
+      <div class="absolute -right-16 -top-16 size-64 rounded-full bg-ritual-primary/30" aria-hidden="true"></div>
+      <div class="absolute -bottom-20 right-24 size-48 rounded-full bg-ritual-highlight/50" aria-hidden="true"></div>
+      <div class="relative max-w-xl">
+        {% if props.eyebrow != blank %}
+          <p class="text-sm font-semibold uppercase tracking-wider text-ritual-accent">{{ props.eyebrow }}</p>
+        {% endif %}
+        <h2 class="mt-2 font-heading text-3xl font-bold leading-tight md:text-5xl">{{ props.heading }}</h2>
+        {% if props.text != blank %}
+          <p class="mt-3 text-base text-ritual-muted md:text-lg">{{ props.text }}</p>
+        {% endif %}
+        {% if props.buttonLabel != blank %}
+          <a class="mt-6 inline-flex h-11 items-center rounded-box bg-ritual-primary px-6 text-sm font-semibold text-ritual-on-primary hover:brightness-95" href="{{ props.buttonLink | default: '/collections/all' }}">{{ props.buttonLabel }}</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "label": "Promo banner",
+  "group": "page",
+  "icon": "badge-percent",
+  "settings": {
+    "image": { "kind": "image", "label": "Banner image", "hint": "Replaces the text panel when set." },
+    "eyebrow": { "kind": "text", "default": "This week only" },
+    "heading": { "kind": "text", "default": "Mega deals on monthly groceries" },
+    "text": { "kind": "textarea", "default": "Stock up on rice, oil, lentils and more — save up to 20%." },
+    "buttonLabel": { "kind": "text", "default": "Shop deals" },
+    "buttonLink": { "kind": "link", "default": "/collections/all" }
+  }
+}
+{% endschema %}
