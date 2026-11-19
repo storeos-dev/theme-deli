@@ -18,7 +18,10 @@
     </div>
 
     <div class="p-8 md:p-10">
-      <h2 class="font-heading text-xl font-semibold" x-text="step === 'phone' ? '{{ 'account.sign_in' | t }}' : '{{ 'account.enter_code' | t }}'">{{ 'account.sign_in' | t }}</h2>
+      <h2 class="font-heading text-xl font-semibold">
+        <span x-show="step === 'phone'">{{ 'account.sign_in' | t }}</span>
+        <span x-show="step === 'otp'" x-cloak>{{ 'account.enter_code' | t }}</span>
+      </h2>
       <p class="mt-1 text-sm text-ritual-muted" x-show="step === 'phone'">{{ 'account.sign_in_hint' | t }}</p>
       <p class="mt-1 text-sm text-ritual-muted" x-show="step === 'otp'" x-text="notice" x-cloak></p>
 

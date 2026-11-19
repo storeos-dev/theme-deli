@@ -1,0 +1,79 @@
+<section class="page-width mx-auto px-4 py-8 md:py-12" x-data>
+  <h1 class="font-heading text-2xl font-bold md:text-3xl">
+    {{ props.heading }}
+    <span class="text-base font-medium text-ritual-muted" x-show="$store.cart.totalItems > 0" x-cloak>(<span x-text="$store.cart.totalItems"></span> {{ 'account.items' | t }})</span>
+  </h1>
+
+  <div class="mt-6 h-40 animate-pulse rounded-box bg-ritual-soft" x-show="!$store.cart.ready"></div>
+
+  {%- comment -%} Empty bag {%- endcomment -%}
+  <div class="mt-6 rounded-box bg-ritual-soft px-6 py-14 text-center" x-show="$store.cart.ready && $store.cart.lineItems.length === 0" x-cloak>
+    <svg class="mx-auto h-20 w-auto" viewBox="0 0 200 140" fill="none" aria-hidden="true">
+      <ellipse cx="100" cy="128" rx="70" ry="8" fill="var(--color-ritual-border)"/>
+      <path d="M62 52 85 18M138 52 115 18" stroke="var(--color-ritual-accent)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M30 52h140l-14 66a10 10 0 0 1-9.8 8H53.8a10 10 0 0 1-9.8-8L30 52Z" fill="var(--color-ritual-primary)"/>
+      <path d="M24 48h152a6 6 0 0 1 0 12H24a6 6 0 0 1 0-12Z" fill="var(--color-ritual-accent)"/>
+    </svg>
+    <p class="mt-5 font-heading text-xl font-semibold">{{ 'cart.empty' | t }}</p>
+    <p class="mt-1 text-ritual-muted">{{ props.emptyText }}</p>
+    <a class="mt-6 inline-flex h-11 items-center rounded-box bg-ritual-primary px-6 text-sm font-semibold text-ritual-on-primary hover:brightness-95" href="/collections/all">{{ 'cart.continue' | t }}</a>
+  </div>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_22rem]" x-show="$store.cart.lineItems.length > 0" x-cloak>
+    <ul class="divide-y divide-ritual-border rounded-box border border-ritual-border bg-ritual-bg">
+      <template x-for="item in $store.cart.lineItems" :key="$store.cart.lineKey(item)">
+        <li class="flex gap-4 p-4">
+          <span class="size-20 shrink-0 overflow-hidden rounded-box border border-ritual-border bg-ritual-bg">
+            <img class="size-full object-contain p-1" :src="$store.cart.imageUrl(item)" alt="" x-show="$store.cart.imageUrl(item)">
+          </span>
+          <div class="flex min-w-0 flex-1 flex-col">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="line-clamp-2 font-medium" x-text="item.product.name"></p>
+                <p class="mt-0.5 text-sm text-ritual-muted" x-show="item.product.variantName" x-text="item.product.variantName"></p>
+                <p class="mt-0.5 text-sm text-ritual-muted" x-text="$store.cart.formatMoney(item.product.unitPrice) + ' {{ 'cart.each' | t }}'"></p>
+              </div>
+              <button type="button" class="inline-flex size-8 shrink-0 items-center justify-center rounded-box text-ritual-muted hover:bg-ritual-soft hover:text-ritual-sale" @click="$store.cart.removeItem(item.productId, item.variantId, item.offerId)" :aria-label="'{{ 'cart.remove' | t }} ' + item.product.name">
+                <svg class="size-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.5 6h11M8 6V4.5h4V6M6 6l.7 9.5h6.6L14 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <div class="mt-auto flex items-center justify-between gap-3 pt-3">
+              <div class="inline-flex h-9 items-center overflow-hidden rounded-box border border-ritual-border" x-show="!item.offerId">
+                <button type="button" class="inline-flex size-9 items-center justify-center hover:bg-ritual-soft" @click="$store.cart.adjustQuantity(item.productId, item.quantity - 1, item.variantId, item.offerId)" aria-label="{{ 'cart.decrease' | t }}">−</button>
+                <span class="min-w-9 text-center text-sm font-semibold" x-text="item.quantity"></span>
+                <button type="button" class="inline-flex size-9 items-center justify-center hover:bg-ritual-soft" @click="$store.cart.adjustQuantity(item.productId, item.quantity + 1, item.variantId, item.offerId)" aria-label="{{ 'cart.increase' | t }}">+</button>
+              </div>
+              <span class="text-sm text-ritual-muted" x-show="item.offerId">{{ 'cart.free' | t }} · × <span x-text="item.quantity"></span></span>
+              <p class="font-semibold text-ritual-accent" x-text="item.offerId ? '{{ 'cart.free' | t }}' : $store.cart.formatMoney(item.product.unitPrice * item.quantity)"></p>
+            </div>
+          </div>
+        </li>
+      </template>
+    </ul>
+
+    <aside class="h-fit space-y-4 rounded-box border border-ritual-border bg-ritual-bg p-5 lg:sticky lg:top-36">
+      <h2 class="font-heading text-lg font-semibold">{{ 'checkout.summary' | t }}</h2>
+      <div class="flex items-center justify-between text-sm">
+        <span>{{ 'cart.subtotal' | t }}</span>
+        <span class="font-semibold" x-text="$store.cart.formatMoney($store.cart.subTotalAmount)"></span>
+      </div>
+      <p class="rounded-box bg-ritual-soft px-3 py-2 text-xs text-ritual-muted">{{ 'cart.shipping_note' | t }}</p>
+      <a class="flex h-11 w-full items-center justify-center rounded-box bg-ritual-primary text-sm font-semibold text-ritual-on-primary hover:brightness-95" href="/checkout">{{ 'cart.checkout' | t }}</a>
+      <a class="flex h-11 w-full items-center justify-center rounded-box border border-ritual-border text-sm font-medium hover:border-ritual-primary" href="/collections/all">{{ 'cart.continue' | t }}</a>
+      <button type="button" class="w-full text-center text-xs text-ritual-muted hover:text-ritual-sale" @click="$store.cart.clearCart()">{{ 'cart.clear' | t }}</button>
+    </aside>
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Cart page",
+  "group": "page",
+  "icon": "shopping-bag",
+  "regions": ["pages.cart"],
+  "settings": {
+    "heading": { "kind": "text", "default": "Your bag" },
+    "emptyText": { "kind": "text", "label": "Empty bag text", "default": "Fresh groceries are a few clicks away." }
+  }
+}
+{% endschema %}

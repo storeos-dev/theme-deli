@@ -16,14 +16,33 @@
       <span class="mt-0.5">{{ 'products.off' | t }}</span>
     </span>
   {% endif %}
-  {% unless product.available %}
-    <span class="absolute right-2 top-2 z-10 rounded-box bg-ritual-fg px-2 py-1 text-[11px] font-medium text-ritual-bg">
-      {{ 'products.sold_out' | t }}
-    </span>
-  {% endunless %}
+  {%- comment -%} Save for later (same storage as the StoreOS wishlist) {%- endcomment -%}
+  <button
+    type="button"
+    class="absolute right-2 top-2 z-10 inline-flex size-8 items-center justify-center rounded-full bg-ritual-bg/90 shadow-sm transition hover:scale-110"
+    x-data
+    data-id="{{ product.id }}"
+    data-title="{{ product.title | escape }}"
+    data-handle="{{ product.handle }}"
+    data-price="{{ product.price | default: 0 }}"
+    data-image="{{ card_image }}"
+    :class="$store.wishlist.has($el.dataset.id) ? 'text-ritual-sale' : 'text-ritual-muted hover:text-ritual-sale'"
+    :aria-pressed="$store.wishlist.has($el.dataset.id).toString()"
+    @click="$store.wishlist.toggle({ _id: $el.dataset.id, title: $el.dataset.title, handle: $el.dataset.handle, price: Number($el.dataset.price), thumbnail: { external: $el.dataset.image } })"
+    aria-label="{{ 'wishlist.save' | t }}"
+  >
+    <svg class="size-4" viewBox="0 0 24 24" aria-hidden="true">
+      <path :fill="$store.wishlist.has($el.closest('button').dataset.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" d="M12 20s-7-4.3-8.9-8.6C1.7 8.4 3.6 5 7 5c2 0 3.4 1.1 5 2.8C13.6 6.1 15 5 17 5c3.4 0 5.3 3.4 3.9 6.4C19 15.7 12 20 12 20Z"/>
+    </svg>
+  </button>
 
   <a class="block" href="{{ product.url }}">
-    <div class="aspect-square overflow-hidden rounded-box bg-ritual-bg">
+    <div class="relative aspect-square overflow-hidden rounded-box bg-ritual-bg">
+      {% unless product.available %}
+        <span class="absolute inset-x-0 bottom-0 z-10 bg-ritual-fg/80 py-1 text-center text-[11px] font-medium text-ritual-bg">
+          {{ 'products.sold_out' | t }}
+        </span>
+      {% endunless %}
       {% if card_image != blank %}
         <img
           class="size-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"

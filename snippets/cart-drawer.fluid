@@ -140,6 +140,11 @@
         @click="$store.cart.setOpen(false)"
         x-show="$store.cart.lineItems.length > 0"
       >{{ 'cart.checkout' | t }}</a>
+      <a
+        class="rounded-box flex w-full items-center justify-center border border-ritual-primary px-5 py-3 text-sm font-semibold text-ritual-accent hover:bg-ritual-soft"
+        href="/cart"
+        x-show="$store.cart.lineItems.length > 0"
+      >{{ 'cart.view_bag' | t }}</a>
       <button
         type="button"
         class="rounded-box flex w-full items-center justify-center border border-ritual-border px-5 py-3 text-sm font-medium text-ritual-fg"

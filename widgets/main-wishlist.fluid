@@ -1,0 +1,49 @@
+<section class="page-width mx-auto px-4 py-8 md:py-12" x-data>
+  <div class="grid gap-6 lg:grid-cols-[16rem_1fr]">
+    <div x-show="$store.customer.signedIn" x-cloak>
+      {% render 'account-nav', active: 'wishlist' %}
+    </div>
+
+    <div class="min-w-0" :class="!$store.customer.signedIn && 'lg:col-span-2'">
+      <h1 class="font-heading text-2xl font-bold">
+        {{ props.heading }}
+        <span class="text-base font-medium text-ritual-muted" x-show="$store.wishlist.items.length" x-cloak>(<span x-text="$store.wishlist.items.length"></span>)</span>
+      </h1>
+
+      <div class="mt-6 rounded-box bg-ritual-soft px-6 py-14 text-center" x-show="$store.wishlist.items.length === 0">
+        <svg class="mx-auto size-14 text-ritual-primary" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.5 3 4.5 6.9 4.5c2.2 0 3.7 1.2 5.1 3 1.4-1.8 2.9-3 5.1-3 3.9 0 6 4 4.5 7.3C19.5 16.4 12 21 12 21Z"/></svg>
+        <p class="mt-4 font-heading text-xl font-semibold">{{ 'wishlist.empty' | t }}</p>
+        <p class="mt-1 text-ritual-muted">{{ 'wishlist.empty_hint' | t }}</p>
+        <a class="mt-6 inline-flex h-11 items-center rounded-box bg-ritual-primary px-6 text-sm font-semibold text-ritual-on-primary hover:brightness-95" href="/collections/all">{{ 'general.shop_now' | t }}</a>
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 xl:grid-cols-4" x-show="$store.wishlist.items.length > 0" x-cloak>
+        <template x-for="item in $store.wishlist.items" :key="item._id">
+          <article class="group relative flex flex-col rounded-box border border-ritual-border bg-ritual-bg p-3 hover:border-ritual-primary hover:shadow-md">
+            <button type="button" class="absolute right-2 top-2 z-10 inline-flex size-8 items-center justify-center rounded-full bg-ritual-bg text-ritual-sale shadow hover:scale-105" @click="$store.wishlist.toggle(item)" :aria-label="'{{ 'wishlist.remove' | t }} ' + item.title">
+              <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.5 3 4.5 6.9 4.5c2.2 0 3.7 1.2 5.1 3 1.4-1.8 2.9-3 5.1-3 3.9 0 6 4 4.5 7.3C19.5 16.4 12 21 12 21Z"/></svg>
+            </button>
+            <a class="block aspect-square overflow-hidden rounded-box" :href="$store.wishlist.url(item)">
+              <img class="size-full object-contain p-2 transition group-hover:scale-[1.04]" :src="$store.wishlist.image(item)" :alt="item.title" loading="lazy" x-show="$store.wishlist.image(item)">
+            </a>
+            <h3 class="mt-3 line-clamp-2 min-h-[2.5rem] text-center text-sm font-medium"><a :href="$store.wishlist.url(item)" x-text="item.title"></a></h3>
+            <p class="mt-1 text-center font-semibold text-ritual-accent" x-show="item.price" x-text="$store.cart.formatMoney(item.price)"></p>
+            <a class="mt-3 inline-flex h-9 items-center justify-center rounded-box bg-ritual-primary text-sm font-semibold text-ritual-on-primary hover:brightness-95" :href="$store.wishlist.url(item)">{{ 'wishlist.view' | t }}</a>
+          </article>
+        </template>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Wishlist",
+  "group": "page",
+  "icon": "heart",
+  "regions": ["pages.wishlist"],
+  "settings": {
+    "heading": { "kind": "text", "default": "Saved for later" }
+  }
+}
+{% endschema %}

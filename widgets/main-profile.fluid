@@ -1,0 +1,50 @@
+<section class="page-width mx-auto px-4 py-8 md:py-12" x-data>
+  <div class="grid gap-6 lg:grid-cols-[16rem_1fr]">
+    {% render 'account-nav', active: 'profile' %}
+
+    <div class="min-w-0" x-data="deliProfile">
+      <h1 class="mb-5 font-heading text-2xl font-bold">{{ props.heading }}</h1>
+
+      <form class="max-w-xl space-y-5 rounded-box border border-ritual-border bg-ritual-bg p-6" @submit.prevent="save()">
+        <div class="rounded-box border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert" x-show="error" x-text="error" x-cloak></div>
+
+        <div class="h-40 animate-pulse rounded-box bg-ritual-soft" x-show="loading"></div>
+
+        <div class="space-y-5" x-show="!loading" x-cloak>
+          <label class="block">
+            <span class="mb-1.5 block text-sm font-medium">{{ 'account.name' | t }}</span>
+            <input class="h-11 w-full rounded-box border border-ritual-border bg-ritual-bg px-3 outline-none focus:border-ritual-primary focus:ring-2 focus:ring-ritual-primary/30" type="text" autocomplete="name" x-model="name" required>
+          </label>
+          <label class="block">
+            <span class="mb-1.5 block text-sm font-medium">{{ 'account.phone' | t }}</span>
+            <input class="h-11 w-full cursor-not-allowed rounded-box border border-ritual-border bg-ritual-soft px-3 text-ritual-muted" type="tel" x-model="phone" readonly>
+            <span class="mt-1 block text-xs text-ritual-muted">{{ 'account.phone_hint' | t }}</span>
+          </label>
+          <label class="block" x-show="email">
+            <span class="mb-1.5 block text-sm font-medium">{{ 'general.email' | t }}</span>
+            <input class="h-11 w-full cursor-not-allowed rounded-box border border-ritual-border bg-ritual-soft px-3 text-ritual-muted" type="email" x-model="email" readonly>
+          </label>
+          <div class="flex items-center gap-3">
+            <button class="inline-flex h-11 items-center rounded-box bg-ritual-primary px-6 text-sm font-semibold text-ritual-on-primary hover:brightness-95 disabled:opacity-60" type="submit" :disabled="saving">
+              <span x-show="!saving">{{ 'account.save' | t }}</span>
+              <span x-show="saving" x-cloak>{{ 'account.saving' | t }}</span>
+            </button>
+            <span class="text-sm font-medium text-ritual-accent" x-show="saved" x-transition x-cloak>✓ {{ 'account.saved' | t }}</span>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Profile",
+  "group": "page",
+  "icon": "user-pen",
+  "regions": ["pages.profile"],
+  "settings": {
+    "heading": { "kind": "text", "default": "My profile" }
+  }
+}
+{% endschema %}

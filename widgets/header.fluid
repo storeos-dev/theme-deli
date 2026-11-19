@@ -43,17 +43,33 @@
           </a>
         {% endif %}
 
+        <a
+          class="relative hidden size-10 items-center justify-center rounded-box hover:bg-ritual-soft hover:text-ritual-sale sm:inline-flex"
+          href="/wishlist"
+          aria-label="{{ 'account.wishlist' | t }}"
+        >
+          <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path stroke="currentColor" stroke-width="1.8" d="M12 20s-7-4.3-8.9-8.6C1.7 8.4 3.6 5 7 5c2 0 3.4 1.1 5 2.8C13.6 6.1 15 5 17 5c3.4 0 5.3 3.4 3.9 6.4C19 15.7 12 20 12 20Z"/></svg>
+          <span
+            class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ritual-sale px-1 text-[10px] font-bold text-white"
+            x-show="$store.wishlist.items.length > 0"
+            x-text="$store.wishlist.items.length"
+            x-cloak
+          ></span>
+        </a>
+
         {% if props.showAccount %}
           <a
             class="inline-flex h-10 items-center gap-2 rounded-box border border-ritual-border px-2.5 text-sm font-medium hover:border-ritual-primary hover:bg-ritual-soft sm:px-3"
-            href="/account"
+            :href="$store.customer.signedIn ? '/account' : '/account/login'"
+            href="/account/login"
             aria-label="{{ 'general.account' | t }}"
           >
             <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <circle cx="10" cy="6.5" r="3.5"/>
               <path d="M3.5 17c.8-3.4 3.4-5.25 6.5-5.25s5.7 1.85 6.5 5.25H3.5Z"/>
             </svg>
-            <span class="hidden sm:inline">{{ 'general.sign_in' | t }}</span>
+            <span class="hidden whitespace-nowrap sm:inline" x-show="!$store.customer.signedIn">{{ 'general.sign_in' | t }}</span>
+            <span class="hidden max-w-32 truncate sm:inline" x-show="$store.customer.signedIn" x-cloak>{{ 'account.hi' | t }}, <span x-text="$store.customer.firstName"></span></span>
           </a>
         {% endif %}
 
@@ -203,10 +219,11 @@
   </div>
 
   {% if props.showCart %}
-    {%- comment -%} Floating side cart (desktop) {%- endcomment -%}
+    {%- comment -%} Floating side cart (desktop); the bag page shows the bag already {%- endcomment -%}
     <button
       type="button"
-      class="fixed right-0 top-1/2 z-30 hidden w-20 -translate-y-1/2 flex-col items-center overflow-hidden rounded-l-box shadow-lg md:flex"
+      data-deli-floating-cart
+      class="fixed right-0 top-1/2 z-30 hidden w-20 -translate-y-1/2 flex-col items-center overflow-hidden rounded-l-box shadow-lg {% unless request.path == '/cart' %}md:flex{% endunless %}"
       @click="$store.cart.setOpen(true)"
       aria-controls="ritual-cart-drawer"
       aria-label="{{ 'general.cart' | t }}"

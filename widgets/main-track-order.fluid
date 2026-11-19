@@ -1,0 +1,91 @@
+<section class="page-width mx-auto px-4 py-8 md:py-12" x-data="deliTrackOrder" data-order-id="{{ order_id | escape }}">
+  <div class="mx-auto max-w-3xl">
+    <div class="relative overflow-hidden rounded-box bg-ritual-soft p-6 text-center md:p-10">
+      <div class="pointer-events-none absolute -left-12 -top-12 size-40 rounded-full bg-ritual-primary/25" aria-hidden="true"></div>
+      <h1 class="relative font-heading text-2xl font-bold md:text-3xl">{{ props.heading }}</h1>
+      <p class="relative mt-1 text-ritual-muted">{{ props.text }}</p>
+      <form class="relative mx-auto mt-6 flex max-w-md" @submit.prevent="submit()">
+        <label class="sr-only" for="deli-track-id">{{ 'account.order_number' | t }}</label>
+        <input id="deli-track-id" class="h-11 min-w-0 flex-1 rounded-l-box border-2 border-r-0 border-ritual-primary bg-ritual-bg px-4 text-sm outline-none focus:border-ritual-accent" type="text" placeholder="{{ 'account.order_number' | t }}" x-model="orderId" autocomplete="off">
+        <button class="inline-flex h-11 shrink-0 items-center rounded-r-box bg-ritual-primary px-5 text-sm font-semibold text-ritual-on-primary hover:brightness-95" type="submit">{{ 'account.track' | t }}</button>
+      </form>
+    </div>
+
+    <div class="mt-6 rounded-box border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert" x-show="error" x-text="error" x-cloak></div>
+    <div class="mt-6 h-48 animate-pulse rounded-box bg-ritual-soft" x-show="loading" x-cloak></div>
+    <div class="mt-6 rounded-box border border-dashed border-ritual-border p-8 text-center" x-show="notFound" x-cloak>
+      <p class="font-semibold">{{ 'account.order_not_found' | t }}</p>
+      <p class="mt-1 text-sm text-ritual-muted">{{ 'account.order_not_found_hint' | t }}</p>
+    </div>
+
+    <template x-if="order">
+      <div class="mt-6 space-y-5">
+        <div class="rounded-box border border-ritual-border bg-ritual-bg p-5 md:p-6">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-sm text-ritual-muted">{{ 'account.order' | t }}</p>
+              <p class="font-heading text-xl font-bold">#<span x-text="order.invoiceUID || order._id"></span></p>
+              <p class="text-sm text-ritual-muted" x-text="formatDate(order.createdAt)"></p>
+            </div>
+            <span class="rounded-full px-3 py-1 text-xs font-semibold" :class="statusTone(order.invoiceStatus)" x-text="statusLabel(order.invoiceStatus)"></span>
+          </div>
+
+          <ol class="mt-6 grid grid-cols-5 gap-1" x-show="!cancelled" aria-label="{{ 'account.progress' | t }}">
+            <template x-for="(step, index) in steps" :key="step">
+              <li class="flex flex-col items-center text-center">
+                <div class="flex w-full items-center">
+                  <span class="h-1 flex-1 rounded-full" :class="index === 0 ? 'opacity-0' : (index <= stepIndex() ? 'bg-ritual-primary' : 'bg-ritual-border')"></span>
+                  <span class="mx-1 inline-flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold" :class="index <= stepIndex() ? 'bg-ritual-primary text-ritual-on-primary' : 'border-2 border-ritual-border text-ritual-muted'">
+                    <span x-show="index < stepIndex()">✓</span>
+                    <span x-show="index >= stepIndex()" x-text="index + 1"></span>
+                  </span>
+                  <span class="h-1 flex-1 rounded-full" :class="index === steps.length - 1 ? 'opacity-0' : (index < stepIndex() ? 'bg-ritual-primary' : 'bg-ritual-border')"></span>
+                </div>
+                <span class="mt-2 text-[11px] leading-tight sm:text-xs" :class="index <= stepIndex() ? 'font-semibold' : 'text-ritual-muted'" x-text="statusLabel(step)"></span>
+              </li>
+            </template>
+          </ol>
+          <p class="mt-5 rounded-box bg-red-50 px-4 py-3 text-sm text-red-800" x-show="cancelled">{{ 'account.cancelled' | t }}</p>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-[1fr_16rem]">
+          <ul class="divide-y divide-ritual-border rounded-box border border-ritual-border bg-ritual-bg">
+            <template x-for="(line, index) in (order.lineItems || [])" :key="index">
+              <li class="flex items-center gap-3 p-3">
+                <span class="size-12 shrink-0 overflow-hidden rounded-box border border-ritual-border bg-ritual-soft">
+                  <img class="size-full object-contain" :src="lineImage(line)" alt="" x-show="lineImage(line)">
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="line-clamp-1 text-sm font-medium" x-text="lineName(line)"></span>
+                  <span class="text-xs text-ritual-muted">× <span x-text="line.quantity || 1"></span></span>
+                </span>
+                <span class="text-sm font-semibold" x-text="$store.cart.formatMoney(lineUnitPrice(line) * (Number(line.quantity) || 1))"></span>
+              </li>
+            </template>
+          </ul>
+          <div class="h-fit space-y-2 rounded-box border border-ritual-border bg-ritual-bg p-4 text-sm">
+            <div class="flex justify-between"><span>{{ 'cart.subtotal' | t }}</span><span x-text="$store.cart.formatMoney(order.subTotalAmount)"></span></div>
+            <div class="flex justify-between" x-show="order.deliveryCharge"><span>{{ 'checkout.delivery_charge' | t }}</span><span x-text="$store.cart.formatMoney(order.deliveryCharge)"></span></div>
+            <div class="flex justify-between text-ritual-accent" x-show="order.couponDiscount"><span>{{ 'checkout.discount' | t }}</span><span x-text="'−' + $store.cart.formatMoney(order.couponDiscount)"></span></div>
+            <div class="flex justify-between border-t border-ritual-border pt-2 text-base font-semibold"><span>{{ 'checkout.total' | t }}</span><span class="text-ritual-accent" x-text="$store.cart.formatMoney(order.netTotalAmount)"></span></div>
+            <p class="pt-2 text-xs text-ritual-muted" x-show="order.paymentMethod" x-text="order.paymentMethod === 'COD' ? '{{ 'checkout.cod' | t }}' : '{{ 'checkout.online' | t }}'"></p>
+            <p class="text-xs text-ritual-muted" x-show="address()" x-text="address()"></p>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Track order",
+  "group": "page",
+  "icon": "truck",
+  "regions": ["pages.track-order"],
+  "settings": {
+    "heading": { "kind": "text", "default": "Track your order" },
+    "text": { "kind": "text", "default": "Enter your order number to see where it is." }
+  }
+}
+{% endschema %}

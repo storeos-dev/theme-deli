@@ -149,3 +149,10 @@
     scroll-snap-align: start;
   }
 }
+
+/* Console customizer: widgets render in shadow roots there, so `:host` only
+   matches in the editor, never on the live store. The floating cart is a
+   live-store affordance, so hide it on the canvas. */
+:host [data-deli-floating-cart] {
+  display: none !important;
+}

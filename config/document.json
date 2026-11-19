@@ -71,7 +71,9 @@
         }
       }
     ],
-    "bottom": ["footer"]
+    "bottom": [
+      "footer"
+    ]
   },
   "pages": {
     "home": [
@@ -111,7 +113,9 @@
         }
       }
     ],
-    "collection": ["main-collection"],
+    "collection": [
+      "main-collection"
+    ],
     "product": [
       "main-product",
       {
@@ -123,8 +127,35 @@
         }
       }
     ],
-    "search": ["main-search"],
-    "checkout": ["main-checkout"],
-    "order-confirmation": ["main-order-confirmation"]
+    "search": [
+      "main-search"
+    ],
+    "checkout": [
+      "main-checkout"
+    ],
+    "order-confirmation": [
+      "main-order-confirmation"
+    ],
+    "account": [
+      "main-account"
+    ],
+    "login": [
+      "main-login"
+    ],
+    "orders": [
+      "main-orders"
+    ],
+    "profile": [
+      "main-profile"
+    ],
+    "cart": [
+      "main-cart"
+    ],
+    "wishlist": [
+      "main-wishlist"
+    ],
+    "track-order": [
+      "main-track-order"
+    ]
   }
 }

@@ -9,7 +9,7 @@
     {{ content_for_header }}
   </head>
   <body class="theme-deli min-h-screen" id="storeos-shop-{{ shop.uid }}">
-    <script type="application/json" id="storeos-config">{"tenant":"{{ shop.uid }}","currency":"{{ shop.currency }}","apiBase":"","cdnBase":"https://cdn.storeos.dev"}</script>
+    <script type="application/json" id="storeos-config">{"tenant":"{{ shop.uid }}","currency":"{{ shop.currency }}","apiBase":"{{ shop.api_url }}","cdnBase":"https://cdn.storeos.dev"}</script>
     <a
       class="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:bg-ritual-bg focus:px-3 focus:py-2 focus:text-sm"
       href="#main"

@@ -1,0 +1,50 @@
+<section class="page-width mx-auto px-4 py-8 md:py-12" x-data>
+  <div class="grid gap-6 lg:grid-cols-[16rem_1fr]">
+    {% render 'account-nav', active: 'orders' %}
+
+    <div class="min-w-0" x-data="deliOrders({ limit: {{ props.perPage | default: 10 }} })">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-2">
+        <h1 class="font-heading text-2xl font-bold">{{ props.heading }}</h1>
+        <p class="text-sm text-ritual-muted" x-show="!loading && total > 0" x-cloak><span x-text="total"></span> {{ 'account.orders_total' | t }}</p>
+      </div>
+
+      <div class="mb-4 rounded-box border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert" x-show="error" x-text="error" x-cloak></div>
+
+      <div class="space-y-3" x-show="loading">
+        <div class="h-36 animate-pulse rounded-box bg-ritual-soft"></div>
+        <div class="h-36 animate-pulse rounded-box bg-ritual-soft"></div>
+      </div>
+
+      <div class="space-y-3" x-show="!loading" x-cloak>
+        <template x-for="order in orders" :key="order._id">
+          {% render 'order-card' %}
+        </template>
+
+        <div class="rounded-box border border-dashed border-ritual-border p-10 text-center" x-show="!error && orders.length === 0">
+          <p class="font-semibold">{{ 'account.no_orders' | t }}</p>
+          <p class="mt-1 text-sm text-ritual-muted">{{ 'account.no_orders_hint' | t }}</p>
+          <a class="mt-4 inline-flex h-10 items-center rounded-box bg-ritual-primary px-5 text-sm font-semibold text-ritual-on-primary" href="/collections/all">{{ 'general.shop_now' | t }}</a>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 pt-3" x-show="page > 1 || hasNext">
+          <button type="button" class="inline-flex h-10 items-center rounded-box border border-ritual-border px-4 text-sm font-medium hover:border-ritual-primary disabled:opacity-40" :disabled="page <= 1" @click="load(page - 1)">← {{ 'collections.previous' | t }}</button>
+          <span class="text-sm text-ritual-muted">{{ 'collections.page' | t }} <span x-text="page"></span></span>
+          <button type="button" class="inline-flex h-10 items-center rounded-box border border-ritual-border px-4 text-sm font-medium hover:border-ritual-primary disabled:opacity-40" :disabled="!hasNext" @click="load(page + 1)">{{ 'collections.next' | t }} →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Order history",
+  "group": "page",
+  "icon": "package",
+  "regions": ["pages.orders"],
+  "settings": {
+    "heading": { "kind": "text", "default": "My orders" },
+    "perPage": { "kind": "number", "label": "Orders per page", "min": 5, "max": 30, "default": 10 }
+  }
+}
+{% endschema %}
