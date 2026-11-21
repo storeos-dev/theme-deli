@@ -15,7 +15,7 @@
     </div>
 
     {% if props.layout == 'row' %}
-      <div class="deli-scroller -mx-1 flex gap-3 overflow-x-auto px-1 pb-1 md:gap-4">
+      <div class="deli-scroller -mx-1 flex scroll-px-1 gap-3 overflow-x-auto px-1 pb-1 md:gap-4">
         {% for product in items limit: props.limit %}
           <div class="w-44 shrink-0 sm:w-52 lg:w-[calc((100%-4rem)/5)]">
             {% render 'product-card', product: product, delivery_note: props.deliveryNote %}

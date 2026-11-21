@@ -1,31 +1,39 @@
 {% comment %}
-  Category tiles: image cards with a yellow pill label (Shwapno-style).
+  Category tiles.
+  Phones: a 4-column grid of small photo tiles with the name underneath.
+  Tablet and up: large photo tiles with a yellow label on the photo.
   Uses picked collections; falls back to every store collection.
 {% endcomment %}
 {% assign tiles = widget.data.collectionIds | default: collections %}
 
-<section class="page-width mx-auto px-4 py-6 md:py-8">
+<section class="page-width mx-auto px-4 py-5 md:py-8">
   {% if props.heading != blank %}
-    <h2 class="deli-section-title mb-5 text-center">{{ props.heading }}</h2>
+    <h2 class="deli-section-title mb-5 hidden text-center md:block">{{ props.heading }}</h2>
   {% endif %}
 
-  <div class="deli-scroller -mx-4 flex gap-3 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0 lg:grid-cols-6">
+  {%- comment -%} Phone header row {%- endcomment -%}
+  <div class="mb-3 flex items-center justify-between md:hidden">
+    <h2 class="font-heading text-base font-semibold">{{ props.mobileHeading | default: props.heading | default: 'Shop by category' }}</h2>
+    <a class="text-sm font-semibold text-ritual-accent" href="/collections/all">{{ 'general.view_all' | t }} →</a>
+  </div>
+
+  <div class="grid grid-cols-4 gap-x-2.5 gap-y-4 sm:gap-x-4 md:gap-4 lg:grid-cols-8">
     {% for tile in tiles limit: props.limit %}
       {% assign tile_src = tile.image | image_url %}
-      <a class="group relative block w-36 shrink-0 md:w-auto" href="{{ tile.url }}">
-        <div class="aspect-square overflow-hidden rounded-box bg-ritual-soft">
+      <a class="group relative flex min-w-0 flex-col items-center" href="{{ tile.url }}">
+        <div class="aspect-square w-full overflow-hidden rounded-box bg-ritual-soft ring-1 ring-ritual-border md:ring-0">
           {% if tile_src != blank %}
-            <img class="size-full object-cover transition duration-300 group-hover:scale-105" src="{{ tile_src }}" alt="{{ tile.title }}" loading="lazy">
+            <img class="size-full object-cover transition duration-300 group-hover:scale-105" src="{{ tile_src }}" alt="" loading="lazy">
           {% else %}
-            <div class="flex size-full items-center justify-center text-4xl font-bold text-ritual-primary">{{ tile.title | slice: 0 }}</div>
+            <div class="flex size-full items-center justify-center font-heading text-2xl font-bold text-ritual-primary md:text-4xl">{{ tile.title | slice: 0 }}</div>
           {% endif %}
         </div>
-        <span class="absolute inset-x-3 bottom-2 truncate rounded-box bg-ritual-highlight px-3 py-1.5 text-center text-sm font-semibold text-ritual-fg shadow-sm">
+        <span class="mt-1.5 line-clamp-2 w-full text-center text-xs font-medium leading-tight md:absolute md:inset-x-2 md:bottom-2 md:mt-0 md:w-auto md:truncate md:rounded-box md:bg-ritual-highlight md:px-2 md:py-1.5 md:text-sm md:font-semibold md:text-ritual-fg md:shadow-sm">
           {{ tile.title }}
         </span>
       </a>
     {% else %}
-      <p class="text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
+      <p class="col-span-full text-sm text-ritual-muted">{{ 'collections.empty' | t }}</p>
     {% endfor %}
   </div>
 </section>
@@ -36,13 +44,22 @@
   "group": "dynamic",
   "icon": "layout-grid",
   "settings": {
-    "heading": { "kind": "text", "label": "Heading", "default": "" },
+    "heading": { "kind": "text", "label": "Heading", "hint": "Shown above the tiles on tablet and desktop.", "default": "" },
+    "mobileHeading": { "kind": "text", "label": "Phone heading", "default": "Shop by category" },
     "collectionIds": {
       "kind": "collection-list",
       "label": "Collections",
       "hint": "Leave empty to show every collection."
     },
-    "limit": { "kind": "number", "label": "Tiles to show", "min": 2, "max": 18, "default": 6 }
+    "limit": {
+      "kind": "number",
+      "label": "Tiles to show",
+      "hint": "Multiples of 4 fill whole rows on phones and tablets.",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "default": 8
+    }
   }
 }
 {% endschema %}

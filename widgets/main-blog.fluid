@@ -1,0 +1,42 @@
+<section class="page-width mx-auto px-4 py-8 md:py-12">
+  <div class="mb-6 md:mb-8">
+    <h1 class="font-heading text-3xl font-bold md:text-4xl">{{ props.heading | default: blog.title }}</h1>
+    {% if props.text != blank %}<p class="mt-2 text-ritual-muted">{{ props.text }}</p>{% endif %}
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+    {% for article in blog.articles %}
+      {% assign cover = article.image | image_url %}
+      <a class="group flex flex-col overflow-hidden rounded-box border border-ritual-border bg-ritual-bg transition hover:border-ritual-primary hover:shadow-md" href="{{ article.url }}">
+        <div class="aspect-[16/10] overflow-hidden bg-ritual-soft">
+          {% if cover != blank %}
+            <img class="size-full object-cover transition duration-300 group-hover:scale-[1.03]" src="{{ cover }}" alt="" loading="lazy">
+          {% endif %}
+        </div>
+        <div class="flex flex-1 flex-col p-4 md:p-5">
+          {% if article.published_at %}
+            <time class="text-xs font-semibold uppercase tracking-wide text-ritual-accent">{{ article.published_at | date: '%b %-d, %Y' }}</time>
+          {% endif %}
+          <h2 class="mt-1.5 line-clamp-2 font-heading text-lg font-semibold leading-snug group-hover:text-ritual-accent">{{ article.title }}</h2>
+          <p class="mt-2 line-clamp-3 text-sm text-ritual-muted">{{ article.content | replace: '</', ' </' | strip_html | truncate: 150 }}</p>
+          <span class="mt-auto pt-4 text-sm font-semibold text-ritual-accent">{{ 'blog.read_more' | t }} →</span>
+        </div>
+      </a>
+    {% else %}
+      <p class="col-span-full rounded-box bg-ritual-soft px-6 py-12 text-center text-ritual-muted">{{ 'blog.empty' | t }}</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "label": "Blog posts",
+  "group": "page",
+  "icon": "newspaper",
+  "regions": ["pages.blog"],
+  "settings": {
+    "heading": { "kind": "text", "label": "Heading", "hint": "Leave empty to use the blog's title.", "default": "Recipes & tips" },
+    "text": { "kind": "text", "default": "Ideas for your kitchen, from our team." }
+  }
+}
+{% endschema %}

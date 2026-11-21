@@ -1,5 +1,5 @@
 {% if props.text != blank %}
-  <div class="sf-caption" role="region" aria-label="{{ 'general.announcement' | t }}">
+  <div class="text-xs leading-snug sm:text-sm" role="region" aria-label="{{ 'general.announcement' | t }}">
     {% if props.link != blank %}
       <a class="underline-offset-2 hover:underline" href="{{ props.link }}">{{ props.text }}</a>
     {% else %}

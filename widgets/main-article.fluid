@@ -1,0 +1,32 @@
+<section class="page-width mx-auto px-4 py-8 md:py-12">
+  <article class="mx-auto max-w-3xl">
+    <a class="text-sm font-semibold text-ritual-accent hover:underline" href="/blog">← {{ 'blog.back' | t }}</a>
+    <h1 class="mt-3 font-heading text-3xl font-bold leading-tight md:text-4xl">{{ article.title }}</h1>
+    <p class="mt-3 flex flex-wrap items-center gap-x-2 text-sm text-ritual-muted">
+      {% if article.author != blank %}<span>{{ article.author }}</span><span aria-hidden="true">·</span>{% endif %}
+      {% if article.published_at %}<time>{{ article.published_at | date: '%B %-d, %Y' }}</time>{% endif %}
+    </p>
+    {% assign cover = article.image | image_url %}
+    {% if cover != blank %}
+      <img class="mt-6 aspect-[16/9] w-full rounded-box object-cover" src="{{ cover }}" alt="{{ article.title }}">
+    {% endif %}
+    <div class="deli-prose mt-6">{{ article.content }}</div>
+    {% if article.tags.size > 0 %}
+      <ul class="mt-8 flex flex-wrap gap-2 border-t border-ritual-border pt-6">
+        {% for tag in article.tags %}
+          <li class="rounded-box bg-ritual-soft px-3 py-1 text-xs font-medium text-ritual-accent">#{{ tag }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </article>
+</section>
+
+{% schema %}
+{
+  "label": "Blog post",
+  "group": "page",
+  "icon": "file-text",
+  "regions": ["pages.blog-post"],
+  "settings": {}
+}
+{% endschema %}

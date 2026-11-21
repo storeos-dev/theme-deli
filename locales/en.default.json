@@ -102,8 +102,9 @@
     "categories": "Categories"
   },
   "blog": {
-    "back": "Blog",
-    "empty": "No posts yet."
+    "back": "All posts",
+    "empty": "No posts yet.",
+    "read_more": "Read more"
   },
   "search": {
     "title": "Search",

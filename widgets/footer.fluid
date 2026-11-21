@@ -1,6 +1,6 @@
 <footer>
-  <div class="page-width mx-auto grid gap-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] container">
-    <div>
+  <div class="page-width mx-auto grid grid-cols-2 gap-x-6 gap-y-10 px-4 py-10 md:py-12 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] container">
+    <div class="col-span-2 lg:col-span-1">
       <a class="inline-block" href="/" aria-label="{{ shop.name }}">
         {% if props.useStoreLogo and shop.logo %}
           <img class="h-14 w-auto" src="{{ shop.logo | image_url }}" alt="{{ shop.name }}">
@@ -31,7 +31,7 @@
       </div>
     {% endfor %}
 
-    <div>
+    <div class="col-span-2 lg:col-span-1">
       {% if props.paymentMethods.size > 0 %}
         <h2 class="mb-4 text-base font-semibold">{{ props.paymentHeading | default: 'Pay with' }}</h2>
         <ul class="flex flex-wrap gap-2">

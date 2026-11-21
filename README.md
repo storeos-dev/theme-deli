@@ -40,7 +40,9 @@ Screenshots use the `deli` demo store's catalog.
 - Two-tier header: logo, centered search with live product suggestions, help line, wishlist and sign-in on a white bar; a green category bar with a **Shop by category** menu below.
 - Product cards with discount tags (“৳135 OFF”), a delivery note, a wishlist heart, and **Add to Bag** that turns into a − / + stepper.
 - Floating side cart (item count and total) and a slide-out bag drawer.
-- Hero slider, category tiles, trust strip, promo banner and product rows, all editable in the customizer.
+- Hero slider, category tiles (a compact 4-column grid with names under the photos on phones, big labelled tiles on larger screens), trust strip, promo banner and product rows, all editable in the customizer.
+- About, shipping and other CMS pages and the blog are styled too, including headings, lists, quotes and images merchants write.
+- Responsive from 320px phones to wide desktops, with no sideways scrolling.
 
 **Shopper pages** (the theme designs these instead of StoreOS's defaults)
 - **Sign in** — phone number and a one-time code; first-time shoppers add their name.
@@ -67,6 +69,9 @@ Shoppers stay signed in, and keep their wishlist, when they move between deli's 
 | Collection | `/collections/:handle` | `main-collection` |
 | Product | `/products/:handle` | `main-product`, `product-grid` |
 | Search | `/search?q=` | `main-search` |
+| CMS page | `/pages/:slug` | `main-page` |
+| Blog | `/blog` | `main-blog` |
+| Blog post | `/blog/:handle` | `main-article` |
 | Account | `/account` | `main-account` |
 | Sign in | `/account/login` | `main-login` |
 | Orders | `/account/orders` | `main-orders` |

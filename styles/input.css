@@ -98,7 +98,7 @@
   }
 
   .storeos-widget--announcement-bar {
-    @apply bg-ritual-accent px-5 py-2 text-center text-white;
+    @apply bg-ritual-accent px-3 py-1.5 text-center text-white sm:px-5 sm:py-2;
   }
 
   .storeos-widget--header {
@@ -149,6 +149,24 @@
     scroll-snap-align: start;
   }
 }
+
+/* Merchant-written HTML (pages, blog posts, product descriptions) */
+.deli-prose {
+  color: var(--color-ritual-fg);
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+.deli-prose > * + * { margin-top: 1em; }
+.deli-prose h2 { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; line-height: 1.25; margin-top: 1.75em; }
+.deli-prose h3 { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 600; margin-top: 1.5em; }
+.deli-prose a { color: var(--color-ritual-accent); text-decoration: underline; text-underline-offset: 3px; }
+.deli-prose ul { list-style: disc; padding-left: 1.4em; }
+.deli-prose ol { list-style: decimal; padding-left: 1.4em; }
+.deli-prose li + li { margin-top: 0.35em; }
+.deli-prose img, .deli-prose video, .deli-prose iframe { max-width: 100%; height: auto; border-radius: var(--radius-box); }
+.deli-prose blockquote { border-left: 4px solid var(--color-ritual-primary); padding-left: 1em; color: var(--color-ritual-muted); }
+.deli-prose table { display: block; overflow-x: auto; border-collapse: collapse; }
+.deli-prose th, .deli-prose td { border: 1px solid var(--color-ritual-border); padding: 0.5em 0.75em; }
 
 /* Console customizer: widgets render in shadow roots there, so `:host` only
    matches in the editor, never on the live store. The floating cart is a

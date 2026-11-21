@@ -156,6 +156,15 @@
     ],
     "track-order": [
       "main-track-order"
+    ],
+    "page": [
+      "main-page"
+    ],
+    "blog": [
+      "main-blog"
+    ],
+    "blog-post": [
+      "main-article"
     ]
   }
 }

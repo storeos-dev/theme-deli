@@ -14,17 +14,17 @@
     {% else %}
       <p class="sf-caption mb-3 uppercase tracking-wide text-ritual-muted">{{ 'collections.filters' | t }}</p>
     {% endif %}
-    <ul class="{% if filter_layout == 'top' %}flex gap-2 overflow-x-auto pb-1{% else %}flex gap-2 overflow-x-auto pb-1 lg:block lg:space-y-1 lg:overflow-visible lg:pb-0{% endif %}">
+    <ul class="deli-scroller -mx-4 flex scroll-px-4 gap-2 overflow-x-auto px-4 pb-1 {% unless filter_layout == 'top' %}lg:mx-0 lg:block lg:space-y-1 lg:overflow-visible lg:px-0 lg:pb-0{% endunless %}">
       <li>
         <a
-          class="block whitespace-nowrap text-sm {% if collection.handle == 'all' %}font-semibold text-ritual-fg{% else %}text-ritual-muted hover:text-ritual-fg{% endif %}"
+          class="block whitespace-nowrap rounded-box border px-3 py-1.5 text-sm {% unless filter_layout == 'top' %}lg:border-0 lg:bg-transparent lg:px-0 lg:py-1{% endunless %} {% if collection.handle == 'all' %}border-ritual-primary bg-ritual-primary font-semibold text-ritual-on-primary lg:text-ritual-accent{% else %}border-ritual-border bg-ritual-bg text-ritual-fg hover:border-ritual-primary lg:text-ritual-muted lg:hover:text-ritual-accent{% endif %}"
           href="{{ 'all' | collection_href: current_sort, 1, request.q }}"
         >{{ 'collections.all_products' | t }}</a>
       </li>
       {% for item in collections %}
         <li>
           <a
-            class="block whitespace-nowrap text-sm {% if item.handle == collection.handle %}font-semibold text-ritual-fg{% else %}text-ritual-muted hover:text-ritual-fg{% endif %}"
+            class="block whitespace-nowrap rounded-box border px-3 py-1.5 text-sm {% unless filter_layout == 'top' %}lg:border-0 lg:bg-transparent lg:px-0 lg:py-1{% endunless %} {% if item.handle == collection.handle %}border-ritual-primary bg-ritual-primary font-semibold text-ritual-on-primary lg:text-ritual-accent{% else %}border-ritual-border bg-ritual-bg text-ritual-fg hover:border-ritual-primary lg:text-ritual-muted lg:hover:text-ritual-accent{% endif %}"
             href="{{ item.handle | collection_href: current_sort, 1, request.q }}"
           >{{ item.title }}</a>
         </li>
@@ -51,7 +51,7 @@
 {% endcapture %}
 
 {% capture product_grid %}
-  <div class="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6">
+  <div class="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
     {% for product in collection.products %}
       {% render 'product-card', product: product %}
     {% else %}
@@ -120,8 +120,8 @@
         </p>
       {% endif %}
     </header>
-    <div class="grid gap-8 lg:grid-cols-[12rem_minmax(0,1fr)]">
-      <aside class="lg:sticky lg:top-24 lg:self-start">
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-8">
+      <aside class="min-w-0 lg:sticky lg:top-36 lg:self-start">
         {{ filters | raw }}
         {% if props.showSort %}
           <div class="mt-8 hidden lg:block">
