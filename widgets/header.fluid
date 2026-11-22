@@ -51,8 +51,8 @@
           <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path stroke="currentColor" stroke-width="1.8" d="M12 20s-7-4.3-8.9-8.6C1.7 8.4 3.6 5 7 5c2 0 3.4 1.1 5 2.8C13.6 6.1 15 5 17 5c3.4 0 5.3 3.4 3.9 6.4C19 15.7 12 20 12 20Z"/></svg>
           <span
             class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ritual-sale px-1 text-[10px] font-bold text-white"
-            x-show="$store.wishlist.items.length > 0"
-            x-text="$store.wishlist.items.length"
+            x-show="$store.wishlist.ids.length > 0"
+            x-text="$store.wishlist.ids.length"
             x-cloak
           ></span>
         </a>

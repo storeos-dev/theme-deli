@@ -50,11 +50,11 @@ Screenshots use the `deli` demo store's catalog.
 - **Orders** — every order with status, items and total, with paging.
 - **Profile** — edit your name.
 - **Bag** (`/cart`) — change quantities, remove items, order summary and checkout.
-- **Wishlist** — saved products, shared with StoreOS's own pages.
+- **Wishlist** — saved products, kept in the shopper's StoreOS account so they follow them to any device. Shoppers sign in to save.
 - **Track order** — a five-step delivery timeline, items, totals and address. Works without signing in.
 - **404** — a friendly “we couldn't find that page” with search and category links.
 
-Shoppers stay signed in, and keep their wishlist, when they move between deli's pages and StoreOS pages such as checkout.
+Shoppers stay signed in when they move between deli's pages and StoreOS pages such as checkout, and their wishlist is the same everywhere because it's stored in their account.
 
 **Brand**
 - deli logo in the header and footer (switch to the store's own logo per widget), and a leaf-and-handle favicon that adapts to dark browser tabs.
@@ -129,6 +129,8 @@ storeos theme package  # writes deli.zip for Online store → Themes → Upload 
 
 While editing styles or scripts, run `bun run css:watch` and `bun run js:watch` alongside `theme dev`. The theme ships its own compiled `assets/theme.css`, so rebuild before packaging.
 
+> **StoreOS version:** the account wishlist needs StoreOS **0.31.0** or later (it provides `window.StoreOS.wishlist`). On older stores the heart sends shoppers to sign-in but can't save.
+
 > **CLI version:** the shopper pages (`/account`, `/cart`, `/wishlist`, `/track-order`) and the 404 for unknown URLs need a StoreOS CLI and storefront that support them (StoreOS branch `feat/theme-shopper-pages`). With an older CLI those URLs show StoreOS's own pages.
 
 ### Project layout
@@ -150,4 +152,4 @@ deli/
 
 ### How shopper pages load data
 
-The server renders these pages the same for everyone. In the browser, `src/account.js` calls the Storefront API at `shop.api_url` (sign-in, orders, profile, order tracking). The sign-in token is kept in the `storeos__auth_<store>` cookie and the wishlist in `localStorage` under `storeos__wishlist_<store>` — the same keys StoreOS's own pages use. In `storeos theme dev`, `shop.api_url` is empty and the dev server forwards `/api/…` to your store.
+The server renders these pages the same for everyone. In the browser, `src/account.js` calls the Storefront API at `shop.api_url` (sign-in, orders, profile, order tracking). The sign-in token is kept in the `storeos__auth_<store>` cookie, the same cookie StoreOS's own pages use. The wishlist is stored in the shopper's account: hearts save and remove through `window.StoreOS.wishlist` (printed by `content_for_header`), and the wishlist page loads full products from `GET /api/v1/wishlist`. A wishlist saved in the browser by older versions of deli is moved into the account the first time the shopper signs in. In `storeos theme dev`, `shop.api_url` is empty and the dev server forwards `/api/…` to your store.

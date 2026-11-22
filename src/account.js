@@ -11,7 +11,6 @@ import { readConfig, readCookie } from "./config.js";
 const TOKEN_MAX_AGE = 60 * 60 * 24 * 30;
 
 export const authCookie = (tenant) => `storeos__auth_${tenant}`;
-export const wishlistKey = (tenant) => `storeos__wishlist_${tenant}`;
 
 function writeToken(tenant, token) {
   const secure = location.protocol === "https:" ? "; secure" : "";
@@ -465,37 +464,52 @@ export function createTrackOrder() {
 
 /* ——— wishlist ——————————————————————————————————————————————————— */
 
-function readWishlist(tenant) {
-  try {
-    const value = JSON.parse(localStorage.getItem(wishlistKey(tenant)) ?? "[]");
-    return Array.isArray(value)
-      ? value.filter((item) => item && typeof item._id === "string" && typeof item.title === "string")
-      : [];
-  } catch {
-    return [];
-  }
-}
-
-/** `$store.wishlist`: saved products, shared with the StoreOS React pages. */
+/**
+ * `$store.wishlist`: the signed-in shopper's saved products, stored in their
+ * StoreOS account. Saving and removing go through the StoreOS wishlist helper
+ * (`window.StoreOS.wishlist`, printed by `content_for_header`), so every heart
+ * on the page stays in sync; full product details come from `/api/v1/wishlist`.
+ */
 export function createWishlistStore() {
-  const { tenant } = readConfig();
+  const known = new Map();
   return {
-    items: readWishlist(tenant),
+    ids: [],
+    loaded: false,
 
-    has(id) {
-      return this.items.some((item) => item._id === id);
+    get items() {
+      return this.ids.map((id) => known.get(id)).filter(Boolean);
     },
 
+    init() {
+      const helper = window.StoreOS?.wishlist;
+      if (helper) this.apply({ productIds: helper.productIds(), signedIn: helper.signedIn(), ready: helper.ready() });
+      document.addEventListener("storeos:wishlist", (event) => this.apply(event.detail));
+    },
+
+    apply({ productIds, signedIn, ready }) {
+      this.ids = productIds.map(String);
+      if (!signedIn || !ready || this.loaded) return;
+      this.loaded = true;
+      api("/wishlist")
+        .then((res) => {
+          for (const product of res?.nodes ?? []) known.set(String(product._id), product);
+          this.ids = [...this.ids];
+        })
+        .catch(() => {
+          this.loaded = false;
+        });
+    },
+
+    has(id) {
+      return this.ids.includes(String(id));
+    },
+
+    /** Save, or remove when saved. Signed-out shoppers go to sign-in. */
     toggle(product) {
-      const next = this.has(product._id)
-        ? this.items.filter((item) => item._id !== product._id)
-        : [product, ...this.items].slice(0, 100);
-      this.items = next;
-      try {
-        localStorage.setItem(wishlistKey(tenant), JSON.stringify(next));
-      } catch {
-        /* still works for this visit */
-      }
+      known.set(String(product._id), product);
+      const helper = window.StoreOS?.wishlist;
+      if (helper) return helper.toggle(product._id);
+      location.assign(`/account/login?redirectTo=${encodeURIComponent(location.pathname + location.search)}`);
     },
 
     image(item) {
@@ -506,14 +520,4 @@ export function createWishlistStore() {
       return item.handle ? `/products/${item.handle}` : "#";
     },
   };
-}
-
-/** Re-read the wishlist when another tab changes it. */
-export function syncWishlistAcrossTabs(getStore) {
-  const { tenant } = readConfig();
-  window.addEventListener("storage", (event) => {
-    if (event.key === wishlistKey(tenant) || event.key === null) {
-      getStore().items = readWishlist(tenant);
-    }
-  });
 }
