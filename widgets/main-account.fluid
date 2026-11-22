@@ -18,7 +18,7 @@
           <p class="mt-1 text-sm text-ritual-muted">{{ 'account.orders' | t }}</p>
         </a>
         <a class="rounded-box border border-ritual-border bg-ritual-bg p-4 hover:border-ritual-primary" href="/wishlist">
-          <p class="text-2xl font-bold text-ritual-accent" x-text="$store.wishlist.items.length">0</p>
+          <p class="text-2xl font-bold text-ritual-accent" x-text="$store.wishlist.ids.length">0</p>
           <p class="mt-1 text-sm text-ritual-muted">{{ 'account.wishlist' | t }}</p>
         </a>
         <a class="rounded-box border border-ritual-border bg-ritual-bg p-4 hover:border-ritual-primary" href="/cart">

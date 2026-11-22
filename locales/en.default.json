@@ -168,9 +168,13 @@
   },
   "wishlist": {
     "empty": "Your wishlist is empty",
-    "empty_hint": "Tap the heart on any product to save it for later.",
+    "empty_hint": "Tap the heart on any product to save it. Your wishlist is kept in your account, on every device.",
     "remove": "Remove from wishlist",
     "view": "View product",
-    "save": "Save to wishlist"
+    "save": "Save to wishlist",
+    "sign_in_title": "Sign in to see your wishlist",
+    "sign_in_hint": "Saved products are kept in your account, so they're there on every device you shop from.",
+    "sign_in": "Sign in",
+    "save_signed_out": "Sign in to save"
   }
 }

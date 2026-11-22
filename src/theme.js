@@ -10,7 +10,6 @@ import {
   lineImage,
   lineName,
   lineUnitPrice,
-  syncWishlistAcrossTabs,
 } from "./account.js";
 import { createCartStore } from "./cart.js";
 import { createCheckoutForm } from "./checkout.js";
@@ -39,5 +38,4 @@ queueMicrotask(() => {
   const cart = Alpine.store("cart");
   if (cart && typeof cart.hydrate === "function") cart.hydrate();
   void Alpine.store("customer").load();
-  syncWishlistAcrossTabs(() => Alpine.store("wishlist"));
 });
