@@ -313,6 +313,14 @@ export function createCheckoutForm() {
       return paymentProviderLabel(provider);
     },
 
+    /** Delivery charge shown on an area card: a price, or `freeLabel` at zero. */
+    areaChargeLabel(area, freeLabel) {
+      const charge = getDeliveryCharge(area, this.charges, null);
+      if (!charge) return freeLabel;
+      const cart = window.Alpine?.store?.("cart");
+      return cart?.formatMoney?.(charge) ?? String(charge);
+    },
+
     subAreaOptionLabel(subArea) {
       const charge = getDeliveryCharge(this.selectedArea, this.charges, subArea);
       if (charge !== this.regionDeliveryCharge) {

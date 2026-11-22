@@ -1,328 +1,435 @@
-{% assign field_class = 'w-full rounded-box border border-ritual-border bg-ritual-bg px-3 py-2.5 text-sm text-ritual-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ritual-fg' %}
+{% assign field_class = 'w-full rounded-box border border-ritual-border bg-ritual-bg px-3.5 py-2.5 text-base text-ritual-fg placeholder:text-ritual-muted/70 transition-colors hover:border-ritual-primary focus:border-ritual-accent focus:outline-none focus:ring-2 focus:ring-ritual-primary/40 sm:text-sm' %}
+{% assign label_class = 'mb-1.5 block text-sm font-medium text-ritual-fg' %}
+{% assign card_class = 'rounded-box border border-ritual-border bg-ritual-bg p-5 md:p-6 [counter-increment:step]' %}
+{% assign step_class = 'inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-ritual-primary text-sm font-bold text-ritual-on-primary before:content-[counter(step)]' %}
+{% assign choice_class = 'flex cursor-pointer items-start gap-3 rounded-box border border-ritual-border bg-ritual-bg p-3.5 transition-colors hover:border-ritual-primary has-[:checked]:border-ritual-accent has-[:checked]:bg-ritual-soft has-[:checked]:ring-1 has-[:checked]:ring-ritual-accent has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ritual-accent' %}
 
 <section
-  class="page-width mx-auto px-5 py-10 md:py-14"
+  class="page-width mx-auto px-4 py-8 md:py-12"
   x-data="ritualCheckout()"
 >
-  <header class="mb-8 md:mb-10">
-    <h1 class="sf-heading">
+  <header class="mb-6 md:mb-8">
+    <h1 class="font-heading text-2xl font-bold md:text-3xl">
       {% if props.heading != blank %}{{ props.heading }}{% else %}{{ 'checkout.title' | t }}{% endif %}
     </h1>
     {% if props.subtitle != blank %}
-      <p class="sf-body mt-2 text-ritual-muted">{{ props.subtitle }}</p>
+      <p class="mt-1.5 text-sm text-ritual-muted md:text-base">{{ props.subtitle }}</p>
     {% endif %}
   </header>
 
-  <template x-if="!$store.cart.ready || !tenantReady">
-    <p class="text-sm text-ritual-muted">{{ 'checkout.loading' | t }}</p>
-  </template>
-
-  <template x-if="tenantReady && tenantError">
-    <p class="text-sm text-red-700" x-text="tenantError"></p>
-  </template>
-
-  <template x-if="$store.cart.ready && tenantReady && !tenantError && $store.cart.lineItems.length === 0">
-    <div class="max-w-lg space-y-4">
-      <p class="text-sm text-ritual-muted">{{ 'cart.empty' | t }}</p>
-      <a class="inline-flex text-sm font-medium underline" href="/collections/all">{{ 'cart.continue' | t }}</a>
+  {%- comment -%} Loading {%- endcomment -%}
+  <div
+    class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]"
+    x-show="!$store.cart.ready || !tenantReady"
+    role="status"
+  >
+    <span class="sr-only">{{ 'checkout.loading' | t }}</span>
+    <div class="space-y-4">
+      <div class="h-44 animate-pulse rounded-box bg-ritual-border/50"></div>
+      <div class="h-56 animate-pulse rounded-box bg-ritual-border/50"></div>
     </div>
+    <div class="h-72 animate-pulse rounded-box bg-ritual-border/50"></div>
+  </div>
+
+  {%- comment -%} Store settings could not be loaded {%- endcomment -%}
+  <template x-if="tenantReady && tenantError">
+    <p class="rounded-box border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert" x-text="tenantError"></p>
   </template>
+
+  {%- comment -%} Empty bag {%- endcomment -%}
+  <div
+    class="rounded-box border border-ritual-border bg-ritual-bg px-6 py-14 text-center"
+    x-show="$store.cart.ready && tenantReady && !tenantError && $store.cart.lineItems.length === 0"
+    x-cloak
+  >
+    <svg class="mx-auto h-20 w-auto" viewBox="0 0 200 140" fill="none" aria-hidden="true">
+      <ellipse cx="100" cy="128" rx="70" ry="8" fill="var(--color-ritual-border)"/>
+      <path d="M62 52 85 18M138 52 115 18" stroke="var(--color-ritual-accent)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M30 52h140l-14 66a10 10 0 0 1-9.8 8H53.8a10 10 0 0 1-9.8-8L30 52Z" fill="var(--color-ritual-primary)"/>
+      <path d="M24 48h152a6 6 0 0 1 0 12H24a6 6 0 0 1 0-12Z" fill="var(--color-ritual-accent)"/>
+    </svg>
+    <p class="mt-5 font-heading text-xl font-semibold">{{ 'cart.empty' | t }}</p>
+    <a class="mt-6 inline-flex h-11 items-center rounded-box bg-ritual-primary px-6 text-sm font-semibold text-ritual-on-primary hover:brightness-95" href="/collections/all">{{ 'cart.continue' | t }}</a>
+  </div>
 
   <div
-    class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-14"
+    class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-8"
     x-show="$store.cart.ready && tenantReady && !tenantError && $store.cart.lineItems.length > 0"
     x-cloak
   >
-    <form class="space-y-6" novalidate @submit.prevent="submit()">
-      <p
-        class="rounded-box border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
-        x-show="error"
-        x-text="error"
-        x-cloak
-      ></p>
+    {%- comment -%}
+      Steps are numbered with a CSS counter, so the numbers stay 1, 2, 3 when a
+      store hides a step (a hidden card doesn't count).
+    {%- endcomment -%}
+    <form id="deli-checkout-form" class="space-y-4 [counter-reset:step] md:space-y-5" novalidate @submit.prevent="submit()">
+      {%- comment -%} Contact {%- endcomment -%}
+      <section class="{{ card_class }}">
+        <div class="flex items-center gap-3">
+          <span class="{{ step_class }}" aria-hidden="true"></span>
+          <div>
+            <h2 class="font-heading text-lg font-semibold leading-tight">{{ 'checkout.contact' | t }}</h2>
+            <p class="text-sm text-ritual-muted">{{ 'checkout.contact_hint' | t }}</p>
+          </div>
+        </div>
 
-      <div class="space-y-4">
-        <h2 class="text-sm font-medium uppercase tracking-wide text-ritual-muted">{{ 'checkout.contact' | t }}</h2>
-
-        <label class="block" x-show="visible(fields.name)">
-          <span class="sf-caption mb-1.5 block text-ritual-muted">
-            {{ 'checkout.name' | t }}
-            <span class="ml-0.5 text-red-600" x-show="required(fields.name)" aria-hidden="true">*</span>
-          </span>
-          <input class="{{ field_class }}" type="text" name="name" autocomplete="name" :required="visible(fields.name) && required(fields.name)" x-model="name">
-        </label>
-
-        <label class="block" x-show="visible(fields.phone)">
-          <span class="sf-caption mb-1.5 block text-ritual-muted">
-            {{ 'checkout.phone' | t }}
-            <span class="ml-0.5 text-red-600" x-show="required(fields.phone)" aria-hidden="true">*</span>
-          </span>
-          <input class="{{ field_class }}" type="tel" name="phoneNumber" autocomplete="tel" placeholder="01XXXXXXXXX" :required="visible(fields.phone) && required(fields.phone)" x-model="phone">
-        </label>
-
-        <label class="block" x-show="visible(fields.email)">
-          <span class="sf-caption mb-1.5 block text-ritual-muted">
-            {{ 'checkout.email' | t }}
-            <span class="ml-0.5 text-red-600" x-show="required(fields.email)" aria-hidden="true">*</span>
-          </span>
-          <input class="{{ field_class }}" type="email" name="email" autocomplete="email" :required="visible(fields.email) && required(fields.email)" x-model="email">
-        </label>
-      </div>
-
-      <div class="space-y-4 border-t border-ritual-border pt-6" x-show="visible(fields.shippingAddress)">
-        <h2 class="text-sm font-medium uppercase tracking-wide text-ritual-muted">
-          {{ 'checkout.shipping' | t }}
-          <span class="ml-0.5 normal-case tracking-normal text-red-600" x-show="required(fields.shippingAddress)" aria-hidden="true">*</span>
-        </h2>
-
-        <template x-for="field in shippingFieldConfigs" :key="field.name">
-          <label class="block" :class="field.name === 'addressLine' ? '' : ''">
-            <span class="sf-caption mb-1.5 block text-ritual-muted">
-              <span x-text="field.label"></span>
-              <span class="ml-0.5 text-red-600" x-show="required(field.mode)" aria-hidden="true">*</span>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <label class="block" x-show="visible(fields.name)">
+            <span class="{{ label_class }}">
+              {{ 'checkout.name' | t }}
+              <span class="text-ritual-sale" x-show="required(fields.name)" aria-hidden="true">*</span>
             </span>
-            <textarea
-              class="min-h-24 {{ field_class }}"
-              :name="'shippingAddress:' + field.name"
-              :required="required(field.mode) && field.name === 'addressLine'"
-              x-model="shipping[field.name]"
-              x-show="field.name === 'addressLine'"
-              placeholder="House, road, area, city"
-            ></textarea>
-            <input
-              class="{{ field_class }}"
-              type="text"
-              :name="'shippingAddress:' + field.name"
-              :required="required(field.mode) && field.name !== 'addressLine'"
-              x-model="shipping[field.name]"
-              x-show="field.name !== 'addressLine'"
-            >
+            <input class="{{ field_class }}" type="text" name="name" autocomplete="name" :required="visible(fields.name) && required(fields.name)" x-model="name">
           </label>
-        </template>
-      </div>
 
-      <div class="space-y-4 border-t border-ritual-border pt-6" x-show="visible(fields.deliveryArea) || areas.length > 0">
-        <h2 class="text-sm font-medium uppercase tracking-wide text-ritual-muted">{{ 'checkout.delivery' | t }}</h2>
-
-        <label class="block" x-show="visible(fields.deliveryArea)">
-          <span class="sf-caption mb-1.5 block text-ritual-muted">
-            {{ 'checkout.delivery_area' | t }}
-            <span class="ml-0.5 text-red-600" x-show="required(fields.deliveryArea)" aria-hidden="true">*</span>
-          </span>
-          <select
-            class="{{ field_class }}"
-            name="deliveryArea"
-            :required="visible(fields.deliveryArea) && required(fields.deliveryArea)"
-            x-model="deliveryArea"
-            @change="onDeliveryAreaChange()"
-          >
-            <template x-for="area in areas" :key="area">
-              <option :value="area" x-text="area"></option>
-            </template>
-          </select>
-        </label>
-        <input type="hidden" name="deliveryArea" :value="selectedArea" x-show="!visible(fields.deliveryArea)">
-
-        <label class="block" x-show="visible(fields.deliveryArea) && subAreas.length > 0">
-          <span class="sf-caption mb-1.5 block text-ritual-muted">
-            {{ 'checkout.delivery_sub_area' | t }}
-            <span x-text="selectedArea ? (' in ' + selectedArea) : ''"></span>
-            <span class="ml-0.5 text-red-600" x-show="required(fields.deliveryArea)" aria-hidden="true">*</span>
-          </span>
-          <select
-            class="{{ field_class }}"
-            name="deliverySubArea"
-            :required="visible(fields.deliveryArea) && required(fields.deliveryArea) && subAreas.length > 0"
-            x-model="deliverySubArea"
-          >
-            <option value="">{{ 'checkout.choose_sub_area' | t }}</option>
-            <template x-for="subArea in subAreas" :key="subArea">
-              <option :value="subArea" x-text="subAreaOptionLabel(subArea)"></option>
-            </template>
-          </select>
-        </label>
-      </div>
-
-      <div class="space-y-4 border-t border-ritual-border pt-6" x-show="visible(fields.notes)">
-        <label class="block">
-          <span class="sf-caption mb-1.5 block text-ritual-muted">
-            {{ 'checkout.notes' | t }}
-            <span class="ml-0.5 text-red-600" x-show="required(fields.notes)" aria-hidden="true">*</span>
-          </span>
-          <textarea class="min-h-20 {{ field_class }}" name="notes" :required="visible(fields.notes) && required(fields.notes)" x-model="notes"></textarea>
-        </label>
-      </div>
-
-      <div class="space-y-4 border-t border-ritual-border pt-6" x-show="visibleCustomFields.length > 0">
-        <h2 class="text-sm font-medium uppercase tracking-wide text-ritual-muted">{{ 'checkout.more_details' | t }}</h2>
-        <template x-for="field in visibleCustomFields" :key="field.key">
-          <label class="block">
-            <span class="sf-caption mb-1.5 block text-ritual-muted">
-              <span x-text="field.label"></span>
-              <span class="ml-0.5 text-red-600" x-show="required(field.mode)" aria-hidden="true">*</span>
+          <label class="block" x-show="visible(fields.phone)">
+            <span class="{{ label_class }}">
+              {{ 'checkout.phone' | t }}
+              <span class="text-ritual-sale" x-show="required(fields.phone)" aria-hidden="true">*</span>
             </span>
-            <textarea
-              class="min-h-20 {{ field_class }}"
-              :name="'customField:' + field.key"
-              :required="required(field.mode) && field.inputType === 'textarea'"
-              :placeholder="field.placeholder || ''"
-              x-model="customValues[field.key]"
-              x-show="field.inputType === 'textarea'"
-            ></textarea>
-            <select
-              class="{{ field_class }}"
-              :name="'customField:' + field.key"
-              :required="required(field.mode) && field.inputType === 'select'"
-              x-model="customValues[field.key]"
-              x-show="field.inputType === 'select'"
-            >
-              <option value="" x-text="field.placeholder || 'Select'"></option>
-              <template x-for="option in field.options" :key="option">
-                <option :value="option" x-text="option"></option>
-              </template>
-            </select>
-            <input
-              class="{{ field_class }}"
-              :type="field.inputType === 'email' || field.inputType === 'tel' || field.inputType === 'number' ? field.inputType : 'text'"
-              :name="'customField:' + field.key"
-              :required="required(field.mode) && field.inputType !== 'textarea' && field.inputType !== 'select'"
-              :placeholder="field.placeholder || ''"
-              x-model="customValues[field.key]"
-              x-show="field.inputType !== 'textarea' && field.inputType !== 'select'"
-            >
+            <input class="{{ field_class }}" type="tel" name="phoneNumber" inputmode="tel" autocomplete="tel" placeholder="01XXXXXXXXX" :required="visible(fields.phone) && required(fields.phone)" x-model="phone">
           </label>
-        </template>
-      </div>
 
-      <div class="space-y-3 border-t border-ritual-border pt-6">
-        <template x-if="!couponOpen && !couponApplied">
-          <button
-            type="button"
-            class="text-sm font-medium text-ritual-fg underline underline-offset-2 hover:text-ritual-muted"
-            @click="couponOpen = true"
-          >{{ 'checkout.apply_coupon' | t }}</button>
-        </template>
-
-        <div class="space-y-2" x-show="couponOpen || couponApplied" x-cloak>
-          <label class="block">
-            <span class="sf-caption mb-1.5 block text-ritual-muted">{{ 'checkout.coupon' | t }}</span>
-            <input
-              class="{{ field_class }}"
-              type="text"
-              name="couponCode"
-              :disabled="pending || !!couponApplied"
-              x-model="couponCode"
-              placeholder="{{ 'checkout.coupon_placeholder' | t }}"
-            >
+          <label class="block sm:col-span-2" x-show="visible(fields.email)">
+            <span class="{{ label_class }}">
+              {{ 'checkout.email' | t }}
+              <span class="text-ritual-sale" x-show="required(fields.email)" aria-hidden="true">*</span>
+              <span class="font-normal text-ritual-muted" x-show="!required(fields.email)">({{ 'checkout.optional' | t }})</span>
+            </span>
+            <input class="{{ field_class }}" type="email" name="email" autocomplete="email" :required="visible(fields.email) && required(fields.email)" x-model="email">
           </label>
-          <div class="flex flex-wrap items-center gap-3">
-            <template x-if="couponApplied">
-              <div class="flex flex-wrap items-center gap-3 text-sm">
-                <span class="text-green-700" x-text="'{{ 'checkout.coupon_applied' | t }} (−' + $store.cart.formatMoney(couponApplied.amount) + ')'"></span>
-                <button type="button" class="underline underline-offset-2" @click="clearCoupon()" :disabled="pending">{{ 'checkout.remove_coupon' | t }}</button>
-              </div>
-            </template>
-            <template x-if="!couponApplied">
-              <div class="flex flex-wrap items-center gap-3 text-sm">
-                <button
-                  type="button"
-                  class="rounded-box bg-ritual-primary px-3 py-1.5 font-medium text-ritual-on-primary disabled:opacity-50"
-                  @click="applyCoupon()"
-                  :disabled="pending || !couponCode.trim()"
-                >{{ 'checkout.apply' | t }}</button>
-                <button type="button" class="text-ritual-muted underline underline-offset-2" @click="couponOpen = false; couponError = null">{{ 'general.close' | t }}</button>
-              </div>
+        </div>
+      </section>
+
+      {%- comment -%} Delivery: address, area and notes {%- endcomment -%}
+      <section
+        class="{{ card_class }}"
+        x-show="visible(fields.shippingAddress) || visible(fields.deliveryArea) || visible(fields.notes)"
+      >
+        <div class="flex items-center gap-3">
+          <span class="{{ step_class }}" aria-hidden="true"></span>
+          <div>
+            <h2 class="font-heading text-lg font-semibold leading-tight">{{ 'checkout.delivery' | t }}</h2>
+            <p class="text-sm text-ritual-muted">{{ 'checkout.delivery_hint' | t }}</p>
+          </div>
+        </div>
+
+        <div class="mt-5 space-y-5">
+          <div class="grid gap-4 sm:grid-cols-2" x-show="visible(fields.shippingAddress)">
+            <template x-for="field in shippingFieldConfigs" :key="field.name">
+              <label class="block" :class="field.name === 'addressLine' ? 'sm:col-span-2' : ''">
+                <span class="{{ label_class }}">
+                  <span x-text="field.label"></span>
+                  <span class="text-ritual-sale" x-show="required(field.mode)" aria-hidden="true">*</span>
+                </span>
+                <textarea
+                  class="min-h-24 {{ field_class }}"
+                  :name="'shippingAddress:' + field.name"
+                  autocomplete="street-address"
+                  :required="required(field.mode) && field.name === 'addressLine'"
+                  x-model="shipping[field.name]"
+                  x-show="field.name === 'addressLine'"
+                  placeholder="{{ 'checkout.address_placeholder' | t }}"
+                ></textarea>
+                <input
+                  class="{{ field_class }}"
+                  type="text"
+                  :name="'shippingAddress:' + field.name"
+                  :required="required(field.mode) && field.name !== 'addressLine'"
+                  x-model="shipping[field.name]"
+                  x-show="field.name !== 'addressLine'"
+                >
+              </label>
             </template>
           </div>
-          <p class="text-sm text-red-700" x-show="couponError" x-text="couponError" x-cloak></p>
-        </div>
-      </div>
 
-      <fieldset class="space-y-3 border-t border-ritual-border pt-6" x-show="payments.enableCod || payments.enableOnline">
-        <legend class="text-sm font-medium uppercase tracking-wide text-ritual-muted">{{ 'checkout.payment' | t }}</legend>
+          <div class="space-y-4" x-show="visible(fields.deliveryArea)">
+            {%- comment -%} A few areas: cards that show each delivery charge up front {%- endcomment -%}
+            <fieldset x-show="areas.length > 0 && areas.length <= 4">
+              <legend class="{{ label_class }}">
+                {{ 'checkout.delivery_area' | t }}
+                <span class="text-ritual-sale" x-show="required(fields.deliveryArea)" aria-hidden="true">*</span>
+              </legend>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <template x-for="area in areas" :key="area">
+                  <label class="{{ choice_class }} items-center">
+                    <input class="size-4 shrink-0 accent-ritual-accent" type="radio" name="deliveryAreaChoice" :value="area" x-model="deliveryArea" @change="onDeliveryAreaChange()">
+                    <span class="min-w-0 flex-1 text-sm font-medium" x-text="area"></span>
+                    <span class="shrink-0 text-sm font-semibold text-ritual-accent" x-text="areaChargeLabel(area, '{{ 'cart.free' | t }}')"></span>
+                  </label>
+                </template>
+              </div>
+            </fieldset>
 
-        <label class="flex items-center gap-2 text-sm" x-show="payments.enableCod">
-          <input type="radio" name="paymentMethod" value="COD" x-model="paymentMethod">
-          <span>{{ 'checkout.cod' | t }}</span>
-        </label>
+            {%- comment -%} Many areas: a dropdown {%- endcomment -%}
+            <label class="block" x-show="areas.length > 4">
+              <span class="{{ label_class }}">
+                {{ 'checkout.delivery_area' | t }}
+                <span class="text-ritual-sale" x-show="required(fields.deliveryArea)" aria-hidden="true">*</span>
+              </span>
+              <select
+                class="{{ field_class }}"
+                name="deliveryArea"
+                :required="areas.length > 4 && required(fields.deliveryArea)"
+                x-model="deliveryArea"
+                @change="onDeliveryAreaChange()"
+              >
+                <template x-for="area in areas" :key="area">
+                  <option :value="area" x-text="area"></option>
+                </template>
+              </select>
+            </label>
 
-        <div x-show="payments.enableOnline">
-          <label class="flex items-center gap-2 text-sm">
-            <input type="radio" name="paymentMethod" value="ONLINE" x-model="paymentMethod">
-            <span>{{ 'checkout.online' | t }}</span>
-          </label>
-          <div class="mt-3 ml-6 space-y-2" x-show="paymentMethod === 'ONLINE'" x-cloak>
-            <p class="text-sm text-ritual-muted" x-show="!(payments.enabledOnlineProviders || []).length">
-              {{ 'checkout.no_provider' | t }}
-            </p>
-            <label class="block" x-show="(payments.enabledOnlineProviders || []).length">
-              <span class="sf-caption mb-1.5 block text-ritual-muted">{{ 'checkout.provider' | t }}</span>
-              <select class="{{ field_class }}" name="paymentProvider" x-model="paymentProvider">
-                <template x-for="provider in payments.enabledOnlineProviders" :key="provider">
-                  <option :value="provider" x-text="providerLabel(provider)"></option>
+            <label class="block" x-show="subAreas.length > 0">
+              <span class="{{ label_class }}">
+                {{ 'checkout.delivery_sub_area' | t }}
+                <span x-text="selectedArea ? (' in ' + selectedArea) : ''"></span>
+                <span class="text-ritual-sale" x-show="required(fields.deliveryArea)" aria-hidden="true">*</span>
+              </span>
+              <select
+                class="{{ field_class }}"
+                name="deliverySubArea"
+                :required="visible(fields.deliveryArea) && required(fields.deliveryArea) && subAreas.length > 0"
+                x-model="deliverySubArea"
+              >
+                <option value="">{{ 'checkout.choose_sub_area' | t }}</option>
+                <template x-for="subArea in subAreas" :key="subArea">
+                  <option :value="subArea" x-text="subAreaOptionLabel(subArea)"></option>
                 </template>
               </select>
             </label>
           </div>
-        </div>
-      </fieldset>
 
-      <button
-        class="rounded-box inline-flex w-full items-center justify-center bg-ritual-primary px-5 py-3 text-sm font-medium text-ritual-on-primary transition-colors duration-200 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
-        type="submit"
-        :disabled="pending"
-      >
-        <span x-show="!pending" x-text="placeLabel"></span>
-        <span x-show="pending" x-cloak>{{ 'checkout.placing' | t }}</span>
-      </button>
+          <label class="block" x-show="visible(fields.notes)">
+            <span class="{{ label_class }}">
+              {{ 'checkout.notes' | t }}
+              <span class="text-ritual-sale" x-show="required(fields.notes)" aria-hidden="true">*</span>
+              <span class="font-normal text-ritual-muted" x-show="!required(fields.notes)">({{ 'checkout.optional' | t }})</span>
+            </span>
+            <textarea class="min-h-20 {{ field_class }}" name="notes" placeholder="{{ 'checkout.notes_placeholder' | t }}" :required="visible(fields.notes) && required(fields.notes)" x-model="notes"></textarea>
+          </label>
+        </div>
+      </section>
+
+      {%- comment -%} Extra fields the store added {%- endcomment -%}
+      <section class="{{ card_class }}" x-show="visibleCustomFields.length > 0">
+        <div class="flex items-center gap-3">
+          <span class="{{ step_class }}" aria-hidden="true"></span>
+          <h2 class="font-heading text-lg font-semibold leading-tight">{{ 'checkout.more_details' | t }}</h2>
+        </div>
+
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <template x-for="field in visibleCustomFields" :key="field.key">
+            <label class="block" :class="field.inputType === 'textarea' ? 'sm:col-span-2' : ''">
+              <span class="{{ label_class }}">
+                <span x-text="field.label"></span>
+                <span class="text-ritual-sale" x-show="required(field.mode)" aria-hidden="true">*</span>
+              </span>
+              <textarea
+                class="min-h-20 {{ field_class }}"
+                :name="'customField:' + field.key"
+                :required="required(field.mode) && field.inputType === 'textarea'"
+                :placeholder="field.placeholder || ''"
+                x-model="customValues[field.key]"
+                x-show="field.inputType === 'textarea'"
+              ></textarea>
+              <select
+                class="{{ field_class }}"
+                :name="'customField:' + field.key"
+                :required="required(field.mode) && field.inputType === 'select'"
+                x-model="customValues[field.key]"
+                x-show="field.inputType === 'select'"
+              >
+                <option value="" x-text="field.placeholder || 'Select'"></option>
+                <template x-for="option in field.options" :key="option">
+                  <option :value="option" x-text="option"></option>
+                </template>
+              </select>
+              <input
+                class="{{ field_class }}"
+                :type="field.inputType === 'email' || field.inputType === 'tel' || field.inputType === 'number' ? field.inputType : 'text'"
+                :name="'customField:' + field.key"
+                :required="required(field.mode) && field.inputType !== 'textarea' && field.inputType !== 'select'"
+                :placeholder="field.placeholder || ''"
+                x-model="customValues[field.key]"
+                x-show="field.inputType !== 'textarea' && field.inputType !== 'select'"
+              >
+            </label>
+          </template>
+        </div>
+      </section>
+
+      {%- comment -%} Payment {%- endcomment -%}
+      <section class="{{ card_class }}" x-show="payments.enableCod || payments.enableOnline">
+        <div class="flex items-center gap-3">
+          <span class="{{ step_class }}" aria-hidden="true"></span>
+          <div>
+            <h2 class="font-heading text-lg font-semibold leading-tight" id="deli-checkout-payment">{{ 'checkout.payment' | t }}</h2>
+            <p class="text-sm text-ritual-muted">{{ 'checkout.payment_hint' | t }}</p>
+          </div>
+        </div>
+
+        <div class="mt-5 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-labelledby="deli-checkout-payment">
+          <label class="{{ choice_class }}" x-show="payments.enableCod">
+            <input class="mt-0.5 size-4 shrink-0 accent-ritual-accent" type="radio" name="paymentMethod" value="COD" x-model="paymentMethod">
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-semibold">{{ 'checkout.cod' | t }}</span>
+              <span class="mt-0.5 block text-xs text-ritual-muted">{{ 'checkout.cod_hint' | t }}</span>
+            </span>
+            <svg class="size-6 shrink-0 text-ritual-accent" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.75" y="6.75" width="18.5" height="10.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 10v4M18 10v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </label>
+
+          <label class="{{ choice_class }}" x-show="payments.enableOnline">
+            <input class="mt-0.5 size-4 shrink-0 accent-ritual-accent" type="radio" name="paymentMethod" value="ONLINE" x-model="paymentMethod">
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-semibold">{{ 'checkout.online' | t }}</span>
+              <span class="mt-0.5 block text-xs text-ritual-muted">{{ 'checkout.online_hint' | t }}</span>
+            </span>
+            <svg class="size-6 shrink-0 text-ritual-accent" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.75" y="5.75" width="18.5" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 10h18M6.5 14.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </label>
+        </div>
+
+        <div class="mt-4" x-show="payments.enableOnline && paymentMethod === 'ONLINE'" x-cloak>
+          <p class="rounded-box bg-ritual-soft px-3 py-2 text-sm text-ritual-muted" x-show="!(payments.enabledOnlineProviders || []).length">
+            {{ 'checkout.no_provider' | t }}
+          </p>
+          <fieldset x-show="(payments.enabledOnlineProviders || []).length">
+            <legend class="{{ label_class }}">{{ 'checkout.provider' | t }}</legend>
+            <div class="flex flex-wrap gap-2">
+              <template x-for="provider in (payments.enabledOnlineProviders || [])" :key="provider">
+                <label class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-box border border-ritual-border bg-ritual-bg px-4 text-sm font-medium transition-colors hover:border-ritual-primary has-[:checked]:border-ritual-accent has-[:checked]:bg-ritual-soft has-[:checked]:ring-1 has-[:checked]:ring-ritual-accent">
+                  <input class="size-4 accent-ritual-accent" type="radio" name="paymentProvider" :value="provider" x-model="paymentProvider">
+                  <span x-text="providerLabel(provider)"></span>
+                </label>
+              </template>
+            </div>
+          </fieldset>
+        </div>
+      </section>
     </form>
 
-    <aside class="rounded-box border border-ritual-border p-5 lg:sticky lg:top-24 lg:self-start">
-      <h2 class="text-sm font-medium uppercase tracking-wide text-ritual-muted">{{ 'checkout.summary' | t }}</h2>
-      <ul class="mt-4 divide-y divide-ritual-border">
+    {%- comment -%} Order summary {%- endcomment -%}
+    <aside class="rounded-box border border-ritual-border bg-ritual-bg lg:sticky lg:top-6">
+      <div class="flex items-center justify-between gap-3 px-5 pt-5 md:px-6">
+        <h2 class="font-heading text-lg font-semibold">
+          {{ 'checkout.summary' | t }}
+          <span class="text-sm font-medium text-ritual-muted">(<span x-text="$store.cart.totalItems"></span>)</span>
+        </h2>
+        <a class="text-sm font-medium text-ritual-accent underline-offset-2 hover:underline" href="/cart">{{ 'checkout.edit_bag' | t }}</a>
+      </div>
+
+      <ul class="mt-2 max-h-80 divide-y divide-ritual-border overflow-y-auto px-5 md:px-6">
         <template x-for="item in $store.cart.lineItems" :key="$store.cart.lineKey(item)">
-          <li class="flex gap-3 py-3 text-sm">
-            <div class="size-14 shrink-0 overflow-hidden bg-ritual-border/40">
-              <img
-                class="size-full object-cover"
-                :src="$store.cart.imageUrl(item)"
-                alt=""
-                width="56"
-                height="56"
-                x-show="$store.cart.imageUrl(item)"
-              >
+          <li class="flex items-center gap-3 py-3 text-sm">
+            <div class="relative shrink-0">
+              <div class="size-14 overflow-hidden rounded-box border border-ritual-border bg-ritual-bg">
+                <img
+                  class="size-full object-contain p-1"
+                  :src="$store.cart.imageUrl(item)"
+                  alt=""
+                  width="56"
+                  height="56"
+                  x-show="$store.cart.imageUrl(item)"
+                >
+              </div>
+              <span class="absolute -right-2 -top-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-ritual-fg px-1 text-xs font-semibold text-ritual-bg" x-text="item.quantity"></span>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="truncate font-medium" x-text="item.product.name"></p>
-              <p class="mt-0.5 text-ritual-muted">
-                Qty <span x-text="item.quantity"></span>
-                <span x-show="item.product.variantName" x-text="' · ' + item.product.variantName"></span>
-              </p>
+              <p class="line-clamp-2 font-medium leading-snug" x-text="item.product.name"></p>
+              <p class="mt-0.5 text-xs text-ritual-muted" x-show="item.product.variantName" x-text="item.product.variantName"></p>
             </div>
             <span
-              class="shrink-0 font-medium"
+              class="shrink-0 font-semibold"
+              :class="item.offerId ? 'text-ritual-accent' : ''"
               x-text="item.offerId ? '{{ 'cart.free' | t }}' : $store.cart.formatMoney(item.product.unitPrice * item.quantity)"
             ></span>
           </li>
         </template>
       </ul>
-      <div class="mt-4 space-y-2 border-t border-ritual-border pt-4 text-sm">
+
+      {%- comment -%} Coupon {%- endcomment -%}
+      <div class="border-t border-ritual-border px-5 py-4 md:px-6">
+        <div x-show="!couponApplied">
+          <label class="sr-only" for="deli-checkout-coupon">{{ 'checkout.coupon' | t }}</label>
+          <div class="flex gap-2">
+            <input
+              id="deli-checkout-coupon"
+              class="{{ field_class }} h-11 min-w-0 flex-1 py-0 uppercase placeholder:normal-case"
+              type="text"
+              name="couponCode"
+              autocomplete="off"
+              :disabled="pending"
+              x-model="couponCode"
+              @keydown.enter.prevent="applyCoupon()"
+              placeholder="{{ 'checkout.coupon_placeholder' | t }}"
+            >
+            <button
+              type="button"
+              class="h-11 shrink-0 rounded-box border border-ritual-fg px-4 text-sm font-semibold transition-colors enabled:hover:bg-ritual-fg enabled:hover:text-ritual-bg disabled:cursor-not-allowed disabled:border-ritual-border disabled:text-ritual-muted"
+              @click="applyCoupon()"
+              :disabled="pending || !couponCode.trim()"
+            >{{ 'checkout.apply' | t }}</button>
+          </div>
+          <p class="mt-2 text-sm text-red-700" x-show="couponError" x-text="couponError" role="alert" x-cloak></p>
+        </div>
+
+        <template x-if="couponApplied">
+          <div class="flex items-center justify-between gap-3 rounded-box bg-ritual-soft px-3 py-2.5 text-sm">
+            <span class="inline-flex min-w-0 items-center gap-2 font-medium text-ritual-accent">
+              <svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4.5 10.5 3.5 3.5 7.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="truncate"><span class="uppercase" x-text="couponApplied.code"></span> · {{ 'checkout.coupon_applied' | t }}</span>
+            </span>
+            <button type="button" class="shrink-0 text-ritual-muted underline underline-offset-2 hover:text-ritual-sale" @click="clearCoupon()" :disabled="pending">{{ 'checkout.remove_coupon' | t }}</button>
+          </div>
+        </template>
+      </div>
+
+      {%- comment -%} Totals {%- endcomment -%}
+      <dl class="space-y-2.5 border-t border-ritual-border px-5 py-4 text-sm md:px-6">
         <div class="flex items-center justify-between">
-          <span>{{ 'cart.subtotal' | t }}</span>
-          <span x-text="$store.cart.formatMoney($store.cart.subTotalAmount)"></span>
+          <dt class="text-ritual-muted">{{ 'cart.subtotal' | t }}</dt>
+          <dd class="font-medium" x-text="$store.cart.formatMoney($store.cart.subTotalAmount)"></dd>
         </div>
-        <div class="flex items-center justify-between text-ritual-muted">
-          <span>{{ 'checkout.delivery_charge' | t }}</span>
-          <span x-text="$store.cart.formatMoney(deliveryCharge)"></span>
+        <div class="flex items-center justify-between">
+          <dt class="text-ritual-muted">
+            {{ 'checkout.delivery_charge' | t }}
+            <span x-show="selectedArea" x-text="'· ' + selectedArea"></span>
+          </dt>
+          <dd class="font-medium" x-text="$store.cart.formatMoney(deliveryCharge)"></dd>
         </div>
-        <div class="flex items-center justify-between text-ritual-muted" x-show="discountAmount > 0" x-cloak>
-          <span>{{ 'checkout.discount' | t }}</span>
-          <span x-text="'-' + $store.cart.formatMoney(discountAmount)"></span>
+        <div class="flex items-center justify-between text-ritual-accent" x-show="discountAmount > 0" x-cloak>
+          <dt>{{ 'checkout.discount' | t }}</dt>
+          <dd class="font-medium" x-text="'−' + $store.cart.formatMoney(discountAmount)"></dd>
         </div>
-        <div class="flex items-center justify-between border-t border-ritual-border pt-2 font-semibold">
-          <span>{{ 'checkout.total' | t }}</span>
-          <span x-text="$store.cart.formatMoney(totalAmount)"></span>
+        <div class="flex items-baseline justify-between border-t border-ritual-border pt-3">
+          <dt class="text-base font-semibold">{{ 'checkout.total' | t }}</dt>
+          <dd class="font-heading text-2xl font-bold text-ritual-accent" x-text="$store.cart.formatMoney(totalAmount)"></dd>
         </div>
+      </dl>
+
+      <div class="space-y-3 px-5 pb-5 md:px-6 md:pb-6">
+        <p
+          class="rounded-box border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800"
+          role="alert"
+          x-show="error"
+          x-text="error"
+          x-cloak
+        ></p>
+
+        <button
+          class="flex h-12 w-full items-center justify-center gap-2 rounded-box bg-ritual-primary px-5 text-base font-semibold text-ritual-on-primary transition enabled:hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
+          type="submit"
+          form="deli-checkout-form"
+          :disabled="pending"
+        >
+          <svg class="size-4 animate-spin" viewBox="0 0 20 20" fill="none" aria-hidden="true" x-show="pending" x-cloak><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-opacity=".3" stroke-width="2.5"/><path d="M17.5 10A7.5 7.5 0 0 0 10 2.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <span x-show="!pending" x-text="placeLabel"></span>
+          <span x-show="pending" x-cloak>{{ 'checkout.placing' | t }}</span>
+        </button>
+
+        <p class="flex items-center justify-center gap-1.5 text-center text-xs text-ritual-muted">
+          <svg class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 9V6.5a4 4 0 0 1 8 0V9m-9 0h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ 'checkout.secure_note' | t }}
+        </p>
       </div>
     </aside>
   </div>

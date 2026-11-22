@@ -139,6 +139,7 @@ While editing styles or scripts, run `bun run css:watch` and `bun run js:watch` 
 deli/
 ├── layout/
 │   ├── theme.fluid          page shell (header, page, footer, favicon)
+│   ├── checkout.fluid       checkout shell (logo and back to bag only)
 │   └── not-found.fluid      404 page
 ├── widgets/                 one file per widget (markup + {% schema %})
 ├── snippets/                product-card, search-box, order-card, account-nav, cart-drawer, price
