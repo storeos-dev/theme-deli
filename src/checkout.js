@@ -1,6 +1,70 @@
+import { fileUrl } from "./account.js";
 /** Checkout helpers + Alpine form — mirrors React theme order-flow behaviour. */
 
 const ALL_PROVIDERS = ["BKASH", "SSLCOMMERZ"];
+const MANUAL_LABELS = {
+  bkash: "bKash",
+  nagad: "Nagad",
+  rocket: "Rocket",
+  upay: "Upay",
+  cellfin: "CellFin",
+  pathao_pay: "Pathao Pay",
+  pocket: "Pocket",
+  st_pay: "ST Pay",
+};
+
+/** Manual mobile payments the merchant left on (customer pays, then enters proof). */
+function asManualMethods(payments) {
+  if (payments?.enableManual === false) return [];
+  return (Array.isArray(payments?.manualMethods) ? payments.manualMethods : [])
+    .filter((method) => method?.provider && method.phoneNumber)
+    .map((method) => ({
+      ...method,
+      provider: String(method.provider).toLowerCase(),
+      transactionType: String(method.transactionType || "send_money").toLowerCase(),
+    }));
+}
+
+const PROOF_FIELD_SWITCH = {
+  "payment.paidFrom": "requirePaidFrom",
+  "payment.transactionId": "requireTransactionId",
+  "payment.reference": "requireReference",
+};
+
+function sanitizeInstructions(html) {
+  const source = String(html || "").trim();
+  if (!source) return "";
+  const doc = new DOMParser().parseFromString(source, "text/html");
+  doc.querySelectorAll("script, style, iframe, object, embed, link, meta").forEach(
+    (node) => node.remove(),
+  );
+  doc.body.querySelectorAll("*").forEach((node) => {
+    for (const attr of [...node.attributes]) {
+      const name = attr.name.toLowerCase();
+      const value = attr.value.trim().toLowerCase();
+      if (
+        name.startsWith("on") ||
+        name === "style" ||
+        ((name === "href" || name === "src") && value.startsWith("javascript:"))
+      ) {
+        node.removeAttribute(attr.name);
+      }
+    }
+  });
+  return doc.body.innerHTML.trim();
+}
+
+function isPaymentProofField(field) {
+  return String(field?.key || "").startsWith("payment.");
+}
+
+function paymentLogos() {
+  try {
+    return JSON.parse(document.getElementById("payment-logos")?.textContent || "{}");
+  } catch {
+    return {};
+  }
+}
 
 const SHIPPING_FIELDS = [
   { name: "addressLine", label: "Address line" },
@@ -110,6 +174,7 @@ export function resolveOrderFlow(tenant) {
             : "ONLINE",
       enabledOnlineProviders,
       defaultOnlineProvider,
+      manualMethods: asManualMethods(raw?.payments),
       allowCustomerProviderSelection:
         raw?.payments?.allowCustomerProviderSelection ?? true,
     },
@@ -221,6 +286,8 @@ export function createCheckoutForm() {
     customValues: {},
     paymentMethod: "COD",
     paymentProvider: null,
+    manualProvider: null,
+    instructionsOpen: false,
     couponOpen: false,
     couponCode: "",
     couponApplied: null,
@@ -285,13 +352,30 @@ export function createCheckoutForm() {
 
     get visibleCustomFields() {
       return (this.fields.customFields || []).filter(
-        (field) => field.mode !== "hidden",
+        (field) => field.mode !== "hidden" && !isPaymentProofField(field),
       );
+    },
+
+    /** Paid from / Transaction ID / Reference — shown under the chosen manual method. */
+    get paymentProofFields() {
+      return (this.fields.customFields || []).filter(
+        (field) => field.mode !== "hidden" && isPaymentProofField(field),
+      );
+    },
+
+    get activeProofFields() {
+      const method = this.manualMethod;
+      if (this.paymentMethod !== "ONLINE" || !method) return [];
+      // Only the fields this method switched on under References.
+      return this.paymentProofFields.filter((field) => {
+        const flag = PROOF_FIELD_SWITCH[field.key];
+        return flag ? method[flag] ?? true : true;
+      });
     },
 
     get hiddenCustomFields() {
       return (this.fields.customFields || []).filter(
-        (field) => field.mode === "hidden",
+        (field) => field.mode === "hidden" && !isPaymentProofField(field),
       );
     },
 
@@ -311,6 +395,72 @@ export function createCheckoutForm() {
 
     providerLabel(provider) {
       return paymentProviderLabel(provider);
+    },
+
+    get paymentOptions() {
+      const logos = paymentLogos();
+      const gateways = (this.payments.enabledOnlineProviders || []).map(
+        (provider) => ({
+          key: `gateway:${provider}`,
+          kind: "gateway",
+          provider,
+          label: `${paymentProviderLabel(provider)} (Gateway)`,
+          hint: "Pay securely on the next step",
+          logo: logos[`gateway_${provider.toLowerCase()}`] || "",
+        }),
+      );
+      const manual = (this.payments.manualMethods || []).map((method) => ({
+        key: `manual:${method.provider}`,
+        kind: "manual",
+        provider: method.provider,
+        label: `${MANUAL_LABELS[method.provider] || method.provider} (Manual)`,
+        hint: "Pay from your app, then enter the details",
+        logo: logos[method.provider] || "",
+      }));
+      return [...gateways, ...manual];
+    },
+
+    get selectedPaymentKey() {
+      if (this.manualProvider) return `manual:${this.manualProvider}`;
+      return this.paymentProvider ? `gateway:${this.paymentProvider}` : "";
+    },
+
+    selectPayment(option) {
+      if (option.kind === "manual") {
+        this.manualProvider = option.provider;
+      } else {
+        this.manualProvider = null;
+        this.paymentProvider = option.provider;
+      }
+    },
+
+    get manualMethod() {
+      return (this.payments.manualMethods || []).find(
+        (method) => method.provider === this.manualProvider,
+      );
+    },
+
+    get manualMethodLabel() {
+      const provider = this.manualMethod?.provider;
+      return MANUAL_LABELS[provider] || provider || "";
+    },
+
+    get manualMethodLogo() {
+      return paymentLogos()[this.manualMethod?.provider] || "";
+    },
+
+    /** Merchant instructions for x-html, with scripts, styles and handlers removed. */
+    get manualInstructionsHtml() {
+      return sanitizeInstructions(this.manualMethod?.instructions);
+    },
+
+    get manualQrUrl() {
+      const qr = this.manualMethod?.qrCode;
+      return qr ? fileUrl(qr) || qr.external || qr.url || "" : "";
+    },
+
+    copyManualNumber() {
+      navigator.clipboard?.writeText(this.manualMethod?.phoneNumber || "");
     },
 
     /** Delivery charge shown on an area card: a price, or `freeLabel` at zero. */
@@ -478,7 +628,7 @@ export function createCheckoutForm() {
         }
       }
 
-      for (const field of this.visibleCustomFields) {
+      for (const field of [...this.visibleCustomFields, ...this.activeProofFields]) {
         const value = String(this.customValues[field.key] || "").trim();
         if (field.mode === "required" && !value) {
           this.error = `${field.label} is required.`;
@@ -497,11 +647,12 @@ export function createCheckoutForm() {
         this.error = "Online payment is not available.";
         return;
       }
-      if (
-        method === "ONLINE" &&
-        !(this.payments.enabledOnlineProviders || []).length
-      ) {
-        this.error = "No online payment provider is configured.";
+      if (method === "ONLINE" && !this.paymentOptions.length) {
+        this.error = "No online payment method is configured.";
+        return;
+      }
+      if (method === "ONLINE" && !this.selectedPaymentKey) {
+        this.error = "Select a payment method to continue.";
         return;
       }
 
@@ -510,7 +661,7 @@ export function createCheckoutForm() {
           key: field.key,
           value: field.defaultValue || "",
         })),
-        ...this.visibleCustomFields
+        ...[...this.visibleCustomFields, ...this.activeProofFields]
           .map((field) => ({
             key: field.key,
             value: String(this.customValues[field.key] || "").trim(),
@@ -538,7 +689,11 @@ export function createCheckoutForm() {
             shippingAddress: { caption },
             paymentMethod: method,
             paymentProvider:
-              method === "ONLINE" ? this.paymentProvider || undefined : undefined,
+              method === "ONLINE" && !this.manualProvider
+                ? this.paymentProvider || undefined
+                : undefined,
+            manualPaymentProvider:
+              method === "ONLINE" ? this.manualProvider || undefined : undefined,
             deliveryArea: this.selectedArea || undefined,
             deliverySubArea: this.deliverySubArea || undefined,
             notes: this.notes.trim() || undefined,

@@ -289,20 +289,123 @@
         </div>
 
         <div class="mt-4" x-show="payments.enableOnline && paymentMethod === 'ONLINE'" x-cloak>
-          <p class="rounded-box bg-ritual-soft px-3 py-2 text-sm text-ritual-muted" x-show="!(payments.enabledOnlineProviders || []).length">
+          <script type="application/json" id="payment-logos">
+{
+  "bkash": "{{ 'payment-bkash.png' | asset_url }}",
+  "nagad": "{{ 'payment-nagad.png' | asset_url }}",
+  "rocket": "{{ 'payment-rocket.png' | asset_url }}",
+  "upay": "{{ 'payment-upay.png' | asset_url }}",
+  "cellfin": "{{ 'payment-cellfin.png' | asset_url }}",
+  "pathao_pay": "{{ 'payment-pathao-pay.png' | asset_url }}",
+  "pocket": "{{ 'payment-pocket.png' | asset_url }}",
+  "st_pay": "{{ 'payment-st-pay.png' | asset_url }}",
+  "gateway_bkash": "{{ 'payment-bkash.png' | asset_url }}",
+  "gateway_sslcommerz": "{{ 'payment-sslcommerz.png' | asset_url }}"
+}
+</script>
+          <p class="text-sm text-ritual-muted" x-show="!paymentOptions.length">
             {{ 'checkout.no_provider' | t }}
           </p>
-          <fieldset x-show="(payments.enabledOnlineProviders || []).length">
-            <legend class="{{ label_class }}">{{ 'checkout.provider' | t }}</legend>
-            <div class="flex flex-wrap gap-2">
-              <template x-for="provider in (payments.enabledOnlineProviders || [])" :key="provider">
-                <label class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-box border border-ritual-border bg-ritual-bg px-4 text-sm font-medium transition-colors hover:border-ritual-primary has-[:checked]:border-ritual-accent has-[:checked]:bg-ritual-soft has-[:checked]:ring-1 has-[:checked]:ring-ritual-accent">
-                  <input class="size-4 accent-ritual-accent" type="radio" name="paymentProvider" :value="provider" x-model="paymentProvider">
-                  <span x-text="providerLabel(provider)"></span>
-                </label>
-              </template>
+          <div class="grid gap-2" role="radiogroup" x-show="paymentOptions.length">
+            <template x-for="option in paymentOptions" :key="option.key">
+              <div
+                class="rounded-box border p-3 transition-colors"
+                :class="selectedPaymentKey === option.key ? 'border-ritual-primary ring-1 ring-ritual-primary bg-ritual-soft' : 'border-ritual-border bg-ritual-bg'"
+              >
+                <button type="button" role="radio" class="flex w-full items-center gap-3 text-left" :aria-checked="selectedPaymentKey === option.key" @click="selectPayment(option)">
+                  <span class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-ritual-border bg-white">
+                    <img class="size-full object-contain p-1" :src="option.logo" alt="" x-show="option.logo">
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="flex flex-wrap items-baseline gap-x-2">
+                      <span class="text-sm font-medium" x-text="option.label"></span>
+                    </span>
+                    <span class="block text-xs text-ritual-muted" x-text="option.hint"></span>
+                  </span>
+                  <span class="size-4 shrink-0 rounded-full border" :class="selectedPaymentKey === option.key ? 'border-4 border-ritual-primary' : 'border-ritual-border'" aria-hidden="true"></span>
+                </button>
+                <div class="mt-3 flex flex-wrap items-center gap-4 border-t border-ritual-border pt-3" x-show="option.kind === 'manual' && selectedPaymentKey === option.key">
+                  <img class="size-28 shrink-0 rounded-md border border-ritual-border bg-white object-contain p-1" :src="manualQrUrl" alt="Payment QR code" x-show="manualQrUrl">
+                  <div class="min-w-0 space-y-1">
+                    <p class="text-xs uppercase tracking-wide text-ritual-muted" x-text="manualMethod?.transactionType === 'payment' ? 'Merchant number' : 'Send money to'"></p>
+                    <p class="flex items-center gap-2">
+                      <span class="text-lg font-semibold tabular-nums" x-text="manualMethod?.phoneNumber"></span>
+                      <button type="button" class="text-xs underline underline-offset-2" @click="copyManualNumber()">Copy</button>
+                    </p>
+                    <button type="button" class="mt-1 rounded-md border border-ritual-border px-3 py-1.5 text-xs font-medium hover:bg-ritual-soft" @click="instructionsOpen = true">See full instructions</button>
+                  </div>
+                </div>
+                <template x-if="option.kind === 'manual' && selectedPaymentKey === option.key && activeProofFields.length">
+                <div class="mt-3 space-y-3 border-t border-ritual-border pt-3">
+                  <template x-for="field in activeProofFields" :key="field.key">
+                    <label class="block">
+                      <span class="sf-caption mb-1.5 block text-ritual-muted">
+                        <span x-text="field.label"></span>
+                        <span class="ml-0.5 text-red-600" x-show="required(field.mode)" aria-hidden="true">*</span>
+                      </span>
+                      <input
+                        class="{{ field_class }}"
+                        :name="'customField:' + field.key"
+                        :type="field.inputType === 'tel' ? 'tel' : 'text'"
+                        :required="required(field.mode)"
+                        :placeholder="field.placeholder || ''"
+                        x-model="customValues[field.key]"
+                      >
+                    </label>
+                  </template>
+                </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+          <template x-teleport="body">
+            <div
+              class="fixed inset-0 z-[80] flex items-center justify-center bg-black/55 p-4"
+              x-show="instructionsOpen && manualMethod"
+              x-cloak
+              @click.self="instructionsOpen = false"
+              @keydown.escape.window="instructionsOpen = false"
+            >
+              <div role="dialog" aria-modal="true" class="max-h-[90vh] w-full max-w-md overflow-auto rounded-2xl border border-neutral-200 bg-white text-neutral-900 shadow-xl">
+                <div class="flex items-center gap-3 border-b border-neutral-200 p-5">
+                  <span class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-white">
+                    <img class="size-full object-contain p-1" :src="manualMethodLogo" alt="" x-show="manualMethodLogo">
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <p class="font-semibold" x-text="`Pay with ${manualMethodLabel}`"></p>
+                    <p class="text-sm text-neutral-500" x-text="manualMethod?.transactionType === 'payment' ? 'Merchant payment' : 'Send money'"></p>
+                  </div>
+                  <button type="button" class="rounded-md px-2 py-1 text-lg leading-none text-neutral-500 hover:bg-neutral-100" aria-label="Close" @click="instructionsOpen = false">&times;</button>
+                </div>
+                <div class="space-y-5 p-5">
+                  <div class="rounded-xl bg-neutral-100 p-4 text-center">
+                    <p class="text-xs font-medium uppercase tracking-wide text-neutral-500" x-text="manualMethod?.transactionType === 'payment' ? 'Merchant number' : 'Account number'"></p>
+                    <p class="mt-1 text-xl font-semibold tracking-wide tabular-nums" x-text="manualMethod?.phoneNumber"></p>
+                    <button type="button" class="mt-1 text-xs underline underline-offset-2" @click="copyManualNumber()">Copy number</button>
+                  </div>
+                  <div class="space-y-2 text-center" x-show="manualQrUrl">
+                    <p class="text-sm font-medium">Scan QR code</p>
+                    <img class="mx-auto size-44 rounded-xl border border-neutral-200 bg-white object-contain p-2" :src="manualQrUrl" alt="Payment QR code">
+                  </div>
+                  <div class="space-y-2" x-show="manualInstructionsHtml || (manualMethod?.instructionSteps || []).length">
+                    <p class="text-sm font-medium">How to pay</p>
+                    <div
+                      class="text-sm leading-relaxed [&_ol]:list-decimal [&_ul]:list-disc [&_ol]:pl-5 [&_ul]:pl-5 [&_li+li]:mt-2 [&_strong]:font-semibold [&_a]:underline"
+                      x-show="manualInstructionsHtml"
+                      x-html="manualInstructionsHtml"
+                    ></div>
+                    <ol class="list-decimal space-y-2 pl-5 text-sm" x-show="!manualInstructionsHtml">
+                      <template x-for="step in (manualMethod?.instructionSteps || [])" :key="step.code">
+                        <li x-text="step.text"></li>
+                      </template>
+                    </ol>
+                  </div>
+                  <p class="text-sm text-neutral-500">After paying, close this and fill in the payment details at checkout.</p>
+                </div>
+              </div>
             </div>
-          </fieldset>
+          </template>
         </div>
       </section>
     </form>
